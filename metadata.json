@@ -1,0 +1,6 @@
+{
+  "name": "ប្រព័ន្ធគ្រប់គ្រងវត្តមានគ្រូបង្រៀន (Teacher Attendance)",
+  "description": "កម្មវិធីគ្រប់គ្រងវត្តមានគ្រូបង្រៀន ប្រចាំសប្តាហ៍ ប្រចាំខែ និងឆមាស របាយការណ៍បូកសរុប និងការជូនដំណឹងស្វ័យប្រវត្តិតាម Telegram ទៅកាន់អ្នកគ្រប់គ្រង",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
