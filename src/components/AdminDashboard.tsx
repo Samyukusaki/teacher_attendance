@@ -640,8 +640,8 @@ export const AdminDashboard: React.FC = () => {
                               ...(schoolForm.geoFence || {
                                 enabled: true,
                                 requireLocation: true,
-                                latitude: 11.5367,
-                                longitude: 105.2154,
+                                latitude: 11.065406600974624,
+                                longitude: 105.557117831525,
                                 radiusMeters: 500,
                                 schoolName: schoolForm.nameKh,
                               }),
@@ -670,8 +670,8 @@ export const AdminDashboard: React.FC = () => {
                             ...(schoolForm.geoFence || {
                               enabled: true,
                               requireLocation: true,
-                              latitude: 11.5367,
-                              longitude: 105.2154,
+                              latitude: 11.065406600974624,
+                              longitude: 105.557117831525,
                               radiusMeters: 500,
                               schoolName: schoolForm.nameKh,
                             }),
@@ -694,7 +694,7 @@ export const AdminDashboard: React.FC = () => {
                     <input
                       type="number"
                       step="0.000001"
-                      value={schoolForm.geoFence?.latitude ?? 11.5367}
+                      value={schoolForm.geoFence?.latitude ?? 11.0654066}
                       onChange={(e) =>
                         setSchoolForm({
                           ...schoolForm,
@@ -702,8 +702,8 @@ export const AdminDashboard: React.FC = () => {
                             ...(schoolForm.geoFence || {
                               enabled: true,
                               requireLocation: true,
-                              latitude: 11.5367,
-                              longitude: 105.2154,
+                              latitude: 11.065406600974624,
+                              longitude: 105.557117831525,
                               radiusMeters: 500,
                               schoolName: schoolForm.nameKh,
                             }),
@@ -722,7 +722,7 @@ export const AdminDashboard: React.FC = () => {
                     <input
                       type="number"
                       step="0.000001"
-                      value={schoolForm.geoFence?.longitude ?? 105.2154}
+                      value={schoolForm.geoFence?.longitude ?? 105.5571178}
                       onChange={(e) =>
                         setSchoolForm({
                           ...schoolForm,
@@ -730,8 +730,8 @@ export const AdminDashboard: React.FC = () => {
                             ...(schoolForm.geoFence || {
                               enabled: true,
                               requireLocation: true,
-                              latitude: 11.5367,
-                              longitude: 105.2154,
+                              latitude: 11.065406600974624,
+                              longitude: 105.557117831525,
                               radiusMeters: 500,
                               schoolName: schoolForm.nameKh,
                             }),

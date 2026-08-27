@@ -548,7 +548,7 @@ export const TeacherAttendanceView: React.FC = () => {
                       {geo.isInside === true ? (
                         <span>
                           ទីតាំងរបស់អ្នកស្ថិតក្នុងកម្រិតសុពលភាព (ចម្ងាយ៖{' '}
-                          <strong className="text-emerald-700 font-bold">
+                          <strong className="text-emerald-700 font-bold underline">
                             {formatDistanceKhmer(geo.distanceMeters ?? 0)}
                           </strong>{' '}
                           ពីចំណុចកណ្តាលសាលា / កម្រិតអនុញ្ញាត៖{' '}
@@ -560,8 +560,7 @@ export const TeacherAttendanceView: React.FC = () => {
                           <strong className="font-bold underline">
                             {formatDistanceKhmer(geo.distanceMeters ?? 0)}
                           </strong>{' '}
-                          ពីសាលា (លើសពីកម្រិតកំណត់ {formatDistanceKhmer(schoolInfo.geoFence.radiusMeters)})។
-                          ប្រព័ន្ធមិនអនុញ្ញាតឱ្យបញ្ជូនវត្តមានពីក្រៅបរិវេណសាលាឡើយ!
+                          ពីសាលា (កម្រិតកំណត់អនុញ្ញាតត្រឹម {formatDistanceKhmer(schoolInfo.geoFence.radiusMeters)})។
                         </span>
                       ) : (
                         <span>
@@ -581,7 +580,7 @@ export const TeacherAttendanceView: React.FC = () => {
                     className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${geo.isLocating ? 'animate-spin' : ''}`} />
-                    <span>{geo.isLocating ? 'កំពុងស្កេន...' : 'ស្កេន GPS ម្តងទៀត'}</span>
+                    <span>{geo.isLocating ? 'កំពុងស្កេន...' : 'ស្កេន GPS ឡើងវិញ'}</span>
                   </button>
 
                   {/* Testing / Simulation pills */}

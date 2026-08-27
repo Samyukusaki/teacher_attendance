@@ -161,7 +161,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // School Info
   const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => {
     const loaded = safeGetJSON<SchoolInfo>(LOCAL_STORAGE_KEYS.SCHOOL, initialSchoolInfo);
-    if (!loaded.geoFence) {
+    if (!loaded.geoFence || loaded.geoFence.latitude === 11.5367 || loaded.geoFence.latitude === 11.0482) {
       return { ...loaded, geoFence: initialSchoolInfo.geoFence };
     }
     return loaded;

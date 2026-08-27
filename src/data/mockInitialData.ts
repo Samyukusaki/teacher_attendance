@@ -16,8 +16,8 @@ export const initialSchoolInfo: SchoolInfo = {
   logoUrl: '',
   geoFence: {
     enabled: true,
-    latitude: 11.5367,
-    longitude: 105.2154,
+    latitude: 11.065406600974624,
+    longitude: 105.557117831525,
     radiusMeters: 500, // 500 meters
     requireLocation: true,
   },

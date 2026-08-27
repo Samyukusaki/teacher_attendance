@@ -36,11 +36,12 @@ export function formatDistanceKhmer(meters: number): string {
 
 /**
  * Default GeoFence configuration for Bun Rany Hun Sen Prey Pon High School
+ * វិទ្យាល័យ ប៊ុនរ៉ានី ហ៊ុនសែន ព្រៃពោន (11.065406600974624, 105.557117831525)
  */
 export const DEFAULT_GEOFENCE = {
   enabled: true,
-  latitude: 11.5367, // Example Coordinates in Prey Veng / Prey Pon
-  longitude: 105.2154,
+  latitude: 11.065406600974624,
+  longitude: 105.557117831525,
   radiusMeters: 500, // 500 meters radius from school center
   requireLocation: true,
 };
