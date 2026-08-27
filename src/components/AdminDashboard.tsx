@@ -51,6 +51,9 @@ export const AdminDashboard: React.FC = () => {
     sendDailySummaryTelegram,
     adminPin,
     setAdminPin,
+    setIsAdminAuthenticated,
+    setCurrentRole,
+    setActiveTab,
     showToast,
     resetToDefaultData,
     exportAllDataJSON,
@@ -275,12 +278,20 @@ export const AdminDashboard: React.FC = () => {
   // Handlers for Admin Pin Change
   const handleSavePin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPin.length < 4) {
+    if (newPin.trim().length < 4) {
       showToast('error', 'កូដខ្លីពេក', 'លេខកូដ PIN ត្រូវមានយ៉ាងហោចណាស់ ៤ ខ្ទង់');
       return;
     }
-    setAdminPin(newPin);
-    showToast('success', 'ជោគជ័យ', 'បានផ្លាស់ប្តូរលេខកូដ PIN របស់អ្នកគ្រប់គ្រងរួចរាល់');
+    const updatedPin = newPin.trim();
+    setAdminPin(updatedPin);
+    setIsAdminAuthenticated(false);
+    setCurrentRole('teacher');
+    setActiveTab('teacher_submit');
+    showToast(
+      'success',
+      'បានប្តូរ PIN ជោគជ័យ',
+      'លេខកូដ PIN ថ្មីត្រូវបានកំណត់។ ប្រព័ន្ធបានចាកចេញដោយស្វ័យប្រវត្តិ សូមប្រើលេខកូដថ្មីដើម្បីចូលម្តងទៀត។'
+    );
   };
 
   // Filter records for the records oversight table

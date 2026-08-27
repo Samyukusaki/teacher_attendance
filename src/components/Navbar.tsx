@@ -53,7 +53,7 @@ export const Navbar: React.FC = () => {
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (enteredPin === adminPin || enteredPin === '1234') {
+    if (enteredPin === adminPin) {
       setIsAdminAuthenticated(true);
       setCurrentRole('admin');
       setActiveTab('admin_dashboard');
@@ -62,7 +62,7 @@ export const Navbar: React.FC = () => {
       showToast('success', 'ចូលប្រព័ន្ធជោគជ័យ', 'សូមស្វាគមន៍មកកាន់ផ្ទាំងគ្រប់គ្រងសាលារៀន (Admin Dashboard)');
     } else {
       setPinError(true);
-      showToast('error', 'លេខកូដមិនត្រឹមត្រូវ', 'សូមបញ្ចូលលេខកូដ PIN របស់អ្នកគ្រប់គ្រងម្តងទៀត (កូដលំនាំដើម: 1234)');
+      showToast('error', 'លេខកូដមិនត្រឹមត្រូវ', 'សូមបញ្ចូលលេខកូដ PIN របស់អ្នកគ្រប់គ្រងឱ្យបានត្រឹមត្រូវ');
     }
   };
 
