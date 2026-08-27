@@ -19,6 +19,9 @@ import {
   Lock,
   Calendar,
   AlertTriangle,
+  Download,
+  Upload,
+  Database,
 } from 'lucide-react';
 import { toKhmerNumber, STATUS_META } from '../utils/khmerDate';
 import { TeacherTimetableView } from './TeacherTimetableView';
@@ -50,11 +53,13 @@ export const AdminDashboard: React.FC = () => {
     setAdminPin,
     showToast,
     resetToDefaultData,
+    exportAllDataJSON,
+    importAllDataJSON,
     timetables,
   } = useApp();
 
   const [adminTab, setAdminTab] = useState<
-    'school' | 'teachers' | 'timetables' | 'classes' | 'subjects' | 'records' | 'telegram' | 'security'
+    'school' | 'teachers' | 'timetables' | 'classes' | 'subjects' | 'records' | 'telegram' | 'security' | 'backup'
   >('school');
 
   // 1. School Info State
@@ -317,12 +322,27 @@ export const AdminDashboard: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <button
+              onClick={exportAllDataJSON}
+              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+              title="ទាញយកទិន្នន័យបម្រុងទុក (Export JSON)"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>ទាញយកទិន្នន័យ (Backup)</span>
+            </button>
+            <button
+              onClick={() => setAdminTab('backup')}
+              className="px-3.5 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 border border-slate-700 transition-colors cursor-pointer"
+              title="បញ្ចូលទិន្នន័យ (Import JSON)"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span>បញ្ចូលទិន្នន័យ (Restore)</span>
+            </button>
+            <button
               onClick={resetToDefaultData}
-              className="px-3.5 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-2 border border-slate-700 transition-colors cursor-pointer"
+              className="px-3 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
               title="កំណត់ទិន្នន័យគំរូដើមឡើងវិញ"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>ទិន្នន័យគំរូដើម</span>
             </button>
           </div>
         </div>
@@ -338,6 +358,7 @@ export const AdminDashboard: React.FC = () => {
             { id: 'records', label: 'កែសម្រួលវត្តមាន', icon: Lock, badge: attendanceRecords.length },
             { id: 'telegram', label: 'ការកំណត់ Telegram Bot', icon: Send },
             { id: 'security', label: 'សុវត្ថិភាព / PIN', icon: KeyRound },
+            { id: 'backup', label: 'បម្រុងទុក & ផ្ទេរទិន្នន័យ', icon: Database },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = adminTab === tab.id;
@@ -1160,6 +1181,91 @@ export const AdminDashboard: React.FC = () => {
               រក្សាទុក PIN ថ្មី
             </button>
           </form>
+        </div>
+      )}
+
+      {/* TAB 8: BACKUP & RESTORE */}
+      {adminTab === 'backup' && (
+        <div className="space-y-6 max-w-3xl">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-5">
+              <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase tracking-wider">
+                Data Management
+              </span>
+              <h3 className="font-bold text-base text-slate-900 font-khmer">
+                បម្រុងទុក និង ផ្ទេរទិន្នន័យ (Backup & Restore Data)
+              </h3>
+            </div>
+
+            <p className="text-xs text-slate-600 font-khmer leading-relaxed mb-6">
+              លោកអ្នកអាចទាញយកទិន្នន័យទាំងអស់ (ព័ត៌មានសាលា បញ្ជីគ្រូ កាលវិភាគ ថ្នាក់រៀន មុខវិជ្ជា និងវត្តមាន) ទៅជាឯកសារ <b>.JSON</b> ដើម្បីរក្សាទុក ឬផ្ទេរទៅកាន់ <b>GitHub Pages</b> / ឧបករណ៍ផ្សេងទៀតបានយ៉ាងងាយស្រួល។
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Export Card */}
+              <div className="p-5 rounded-2xl bg-blue-50/60 border border-blue-100 flex flex-col justify-between space-y-4">
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-3 shadow-xs">
+                    <Download className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-900 font-khmer mb-1">
+                    ទាញយកទិន្នន័យបម្រុងទុក (Export)
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-khmer">
+                    ទាញយកឯកសារ JSON នៃទិន្នន័យបច្ចុប្បន្នរបស់អ្នកមករក្សាទុកក្នុងកុំព្យូទ័រ
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  id="btn-export-backup-json"
+                  onClick={exportAllDataJSON}
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>ទាញយក File JSON ឥឡូវនេះ</span>
+                </button>
+              </div>
+
+              {/* Import Card */}
+              <div className="p-5 rounded-2xl bg-emerald-50/60 border border-emerald-100 flex flex-col justify-between space-y-4">
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-3 shadow-xs">
+                    <Upload className="w-5 h-5" />
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-900 font-khmer mb-1">
+                    បញ្ចូលទិន្នន័យពីឯកសារ (Import / Restore)
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-khmer">
+                    ជ្រើសរើសឯកសារ JSON ដែលបានទាញយកពីមុន ដើម្បីផ្ទុកទិន្នន័យចូលប្រព័ន្ធ
+                  </p>
+                </div>
+
+                <label className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer text-center">
+                  <Upload className="w-4 h-4" />
+                  <span>ជ្រើសរើស File JSON បញ្ចូល</span>
+                  <input
+                    type="file"
+                    id="input-import-backup-json"
+                    accept=".json,application/json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const content = event.target?.result as string;
+                        if (content) {
+                          importAllDataJSON(content);
+                        }
+                      };
+                      reader.readAsText(file);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

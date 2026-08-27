@@ -104,6 +104,8 @@ interface AppContextType {
 
   // Reset to initial
   resetToDefaultData: () => void;
+  exportAllDataJSON: () => void;
+  importAllDataJSON: (jsonString: string) => boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -532,6 +534,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('info', 'កំណត់ឡើងវិញ', 'បានកំណត់ទិន្នន័យគំរូដើមឡើងវិញដោយជោគជ័យ');
   };
 
+  const exportAllDataJSON = () => {
+    try {
+      const fullBackup = {
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        schoolInfo,
+        teachers,
+        classes,
+        subjects,
+        timetables,
+        attendanceRecords,
+        leaveRequests,
+        telegramConfig,
+        adminPin,
+      };
+
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fullBackup, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const dateNow = new Date().toISOString().split('T')[0];
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `school_attendance_backup_${dateNow}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      showToast('success', 'ទាញយកជោគជ័យ', 'បានទាញយកទិន្នន័យបម្រុងទុក (JSON) រួចរាល់');
+    } catch (e) {
+      console.error(e);
+      showToast('error', 'បរាជ័យ', 'មិនអាចទាញយកទិន្នន័យបានទេ');
+    }
+  };
+
+  const importAllDataJSON = (jsonString: string): boolean => {
+    try {
+      const data = JSON.parse(jsonString);
+      if (data.schoolInfo) setSchoolInfo(data.schoolInfo);
+      if (data.teachers && Array.isArray(data.teachers)) setTeachers(data.teachers);
+      if (data.classes && Array.isArray(data.classes)) setClasses(data.classes);
+      if (data.subjects && Array.isArray(data.subjects)) setSubjects(data.subjects);
+      if (data.timetables && Array.isArray(data.timetables)) setTimetables(data.timetables);
+      if (data.attendanceRecords && Array.isArray(data.attendanceRecords)) setAttendanceRecords(data.attendanceRecords);
+      if (data.leaveRequests && Array.isArray(data.leaveRequests)) setLeaveRequests(data.leaveRequests);
+      if (data.telegramConfig) setTelegramConfig(data.telegramConfig);
+      if (data.adminPin) setAdminPin(data.adminPin);
+
+      showToast('success', 'បញ្ចូលទិន្នន័យជោគជ័យ', 'ទិន្នន័យទាំងអស់ត្រូវបានផ្ទុកចូលប្រព័ន្ធដោយជោគជ័យ 🎉');
+      return true;
+    } catch (e) {
+      console.error(e);
+      showToast('error', 'ឯកសារមិនត្រឹមត្រូវ', 'សូមពិនិត្យមើលឯកសារ JSON ឡើងវិញ');
+      return false;
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -582,6 +638,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setToast,
         showToast,
         resetToDefaultData,
+        exportAllDataJSON,
+        importAllDataJSON,
       }}
     >
       {children}
