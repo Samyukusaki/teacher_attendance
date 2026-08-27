@@ -24,11 +24,19 @@ import {
   Zap,
   RotateCcw,
   Clock,
+  MapPin,
+  Compass,
+  AlertTriangle,
+  RefreshCw,
+  Navigation,
 } from 'lucide-react';
 import { TeacherTimetableView } from './TeacherTimetableView';
+import { useGeoLocation } from '../hooks/useGeoLocation';
+import { formatDistanceKhmer } from '../utils/geoUtils';
 
 export const TeacherAttendanceView: React.FC = () => {
   const {
+    schoolInfo,
     teachers,
     classes,
     subjects,
@@ -45,6 +53,9 @@ export const TeacherAttendanceView: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
   const [submitting, setSubmitting] = useState(false);
   const [showTimetableModal, setShowTimetableModal] = useState(false);
+
+  // Geolocation Geofencing
+  const geo = useGeoLocation(schoolInfo.geoFence);
 
   // Form states for each period (1 to 8)
   interface PeriodFormState {
@@ -157,6 +168,22 @@ export const TeacherAttendanceView: React.FC = () => {
       return;
     }
 
+    // Geofence strict verification
+    if (schoolInfo.geoFence?.enabled && schoolInfo.geoFence?.requireLocation) {
+      if (geo.isInside !== true) {
+        showToast(
+          'error',
+          'នៅក្រៅបរិវេណសាលា',
+          geo.error
+            ? `មិនអាចផ្ទៀងផ្ទាត់ទីតាំង GPS បានទេ៖ ${geo.error}`
+            : `លោកគ្រូ-អ្នកគ្រូ ស្ថិតនៅក្រៅបរិវេណសាលារៀន (ចម្ងាយ៖ ${
+                geo.distanceMeters !== null ? formatDistanceKhmer(geo.distanceMeters) : 'មិនស្គាល់'
+              }) មិនអាចចុះវត្តមានបានទេ!`
+        );
+        return;
+      }
+    }
+
     const enabledSlots = periodForms.filter((f) => f.enabled);
     if (enabledSlots.length === 0) {
       showToast('error', 'សូមជ្រើសរើសម៉ោង', 'សូមជ្រើសរើសម៉ោងបង្រៀនយ៉ាងហោចណាស់ ១ ម៉ោង');
@@ -169,6 +196,15 @@ export const TeacherAttendanceView: React.FC = () => {
     const month = d.getMonth() + 1;
     const year = d.getFullYear();
     const semester = month >= 10 || month <= 3 ? 'semester1' : 'semester2';
+
+    const locationData = schoolInfo.geoFence?.enabled
+      ? {
+          latitude: geo.coords?.latitude || schoolInfo.geoFence.latitude,
+          longitude: geo.coords?.longitude || schoolInfo.geoFence.longitude,
+          distanceMeters: geo.distanceMeters ?? 0,
+          isInsidePremises: geo.isInside === true,
+        }
+      : undefined;
 
     const recordsToSubmit = enabledSlots.map((slot) => {
       const slotDef = PERIOD_SLOTS.find((s) => s.id === slot.periodId);
@@ -186,6 +222,7 @@ export const TeacherAttendanceView: React.FC = () => {
         semester: semester as 'semester1' | 'semester2',
         month: month,
         year: year,
+        locationCoordinates: locationData,
       };
     });
 
@@ -449,6 +486,136 @@ export const TeacherAttendanceView: React.FC = () => {
       ) : (
         /* EDITABLE FORM */
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* GPS GEOFENCE VERIFICATION CARD */}
+          {schoolInfo.geoFence?.enabled && (
+            <div
+              className={`rounded-2xl p-5 border transition-all shadow-xs ${
+                geo.isInside === true
+                  ? 'bg-emerald-50/70 border-emerald-200 text-slate-900'
+                  : geo.isInside === false
+                  ? 'bg-rose-50/80 border-rose-200 text-slate-900'
+                  : 'bg-amber-50/70 border-amber-200 text-slate-900'
+              }`}
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-2xs ${
+                      geo.isInside === true
+                        ? 'bg-emerald-600 text-white'
+                        : geo.isInside === false
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-amber-500 text-white'
+                    }`}
+                  >
+                    {geo.isInside === true ? (
+                      <MapPin className="w-6 h-6" />
+                    ) : geo.isInside === false ? (
+                      <AlertTriangle className="w-6 h-6" />
+                    ) : (
+                      <Compass className="w-6 h-6 animate-spin" />
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="text-sm font-bold font-khmer">
+                        {geo.isInside === true
+                          ? '📍 ស្ថិតនៅក្នុងបរិវេណសាលារៀន (Inside Premises)'
+                          : geo.isInside === false
+                          ? '🚫 ស្ថិតនៅក្រៅបរិវេណសាលារៀន (Outside Premises)'
+                          : '🟡 កំពុងផ្ទៀងផ្ទាត់ទីតាំង GPS...'}
+                      </h4>
+
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          geo.isInside === true
+                            ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                            : geo.isInside === false
+                            ? 'bg-rose-100 text-rose-800 border-rose-300'
+                            : 'bg-amber-100 text-amber-800 border-amber-300'
+                        }`}
+                      >
+                        {geo.isInside === true
+                          ? 'អនុញ្ញាតចុះវត្តមាន'
+                          : geo.isInside === false
+                          ? 'ហាមឃាត់ការចុះវត្តមាន'
+                          : 'កំពុងពិនិត្យ...'}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-600 mt-1 font-khmer leading-relaxed">
+                      {geo.isInside === true ? (
+                        <span>
+                          ទីតាំងរបស់អ្នកស្ថិតក្នុងកម្រិតសុពលភាព (ចម្ងាយ៖{' '}
+                          <strong className="text-emerald-700 font-bold">
+                            {formatDistanceKhmer(geo.distanceMeters ?? 0)}
+                          </strong>{' '}
+                          ពីចំណុចកណ្តាលសាលា / កម្រិតអនុញ្ញាត៖{' '}
+                          <strong>{formatDistanceKhmer(schoolInfo.geoFence.radiusMeters)}</strong>)។
+                        </span>
+                      ) : geo.isInside === false ? (
+                        <span className="text-rose-700 font-medium">
+                          លោកគ្រូ-អ្នកគ្រូស្ថិតនៅចម្ងាយ{' '}
+                          <strong className="font-bold underline">
+                            {formatDistanceKhmer(geo.distanceMeters ?? 0)}
+                          </strong>{' '}
+                          ពីសាលា (លើសពីកម្រិតកំណត់ {formatDistanceKhmer(schoolInfo.geoFence.radiusMeters)})។
+                          ប្រព័ន្ធមិនអនុញ្ញាតឱ្យបញ្ជូនវត្តមានពីក្រៅបរិវេណសាលាឡើយ!
+                        </span>
+                      ) : (
+                        <span>
+                          {geo.error ||
+                            'សូមអនុញ្ញាតសិទ្ធិទីតាំង (Location) ដើម្បីផ្ទៀងផ្ទាត់វត្តមានក្នុងបរិវេណសាលា។'}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 self-start md:self-center">
+                  <button
+                    type="button"
+                    onClick={() => geo.checkLocation()}
+                    disabled={geo.isLocating}
+                    className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${geo.isLocating ? 'animate-spin' : ''}`} />
+                    <span>{geo.isLocating ? 'កំពុងស្កេន...' : 'ស្កេន GPS ម្តងទៀត'}</span>
+                  </button>
+
+                  {/* Testing / Simulation pills */}
+                  <div className="flex items-center gap-1 bg-white/80 border border-slate-200 rounded-xl p-1 text-[10px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => geo.simulatePosition(true)}
+                      className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${
+                        geo.isSimulated && geo.isInside === true
+                          ? 'bg-emerald-600 text-white'
+                          : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                      title="សាកល្បង៖ កំណត់ថាស្ថិតនៅក្នុងសាលា (Test inside)"
+                    >
+                      🧪 ក្នុងសាលា
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => geo.simulatePosition(false)}
+                      className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${
+                        geo.isSimulated && geo.isInside === false
+                          ? 'bg-rose-600 text-white'
+                          : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                      title="សាកល្បង៖ កំណត់ថាស្ថិតនៅក្រៅសាលា (Test outside)"
+                    >
+                      🧪 ក្រៅសាលា
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs">
             <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
               <div>
@@ -619,21 +786,44 @@ export const TeacherAttendanceView: React.FC = () => {
             {/* Bottom Actions Bar */}
             <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-xs text-slate-500">
-                <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <span>
-                  នៅពេលចុច <strong className="text-slate-800 font-bold">"បញ្ជូន និងចាក់សោវត្តមាន"</strong> ទិន្នន័យនឹងត្រូវចាក់សោមិនអាចកែប្រែដោយលោកគ្រូ-អ្នកគ្រូឡើយ។
-                </span>
+                {schoolInfo.geoFence?.enabled && schoolInfo.geoFence?.requireLocation && geo.isInside === false ? (
+                  <div className="flex items-center gap-2 text-rose-600 font-bold">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    <span>
+                      បិទសិទ្ធិបញ្ជូនវត្តមាន៖ ដោយសារស្ថិតនៅក្រៅបរិវេណសាលា (លើសពី {formatDistanceKhmer(schoolInfo.geoFence.radiusMeters)})
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                    <span>
+                      នៅពេលចុច <strong className="text-slate-800 font-bold">"បញ្ជូន និងចាក់សោវត្តមាន"</strong> ទិន្នន័យនឹងត្រូវចាក់សោមិនអាចកែប្រែដោយលោកគ្រូ-អ្នកគ្រូឡើយ។
+                    </span>
+                  </>
+                )}
               </div>
 
               <button
                 type="submit"
-                disabled={submitting}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                disabled={
+                  submitting ||
+                  (schoolInfo.geoFence?.enabled && schoolInfo.geoFence?.requireLocation && geo.isInside === false)
+                }
+                className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all ${
+                  schoolInfo.geoFence?.enabled && schoolInfo.geoFence?.requireLocation && geo.isInside === false
+                    ? 'bg-rose-100 text-rose-700 border border-rose-300 cursor-not-allowed opacity-80'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer disabled:opacity-50'
+                }`}
               >
                 {submitting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span>កំពុងបញ្ជូនទិន្នន័យ...</span>
+                  </>
+                ) : schoolInfo.geoFence?.enabled && schoolInfo.geoFence?.requireLocation && geo.isInside === false ? (
+                  <>
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>មិនអាចបញ្ជូនបានទេ (នៅក្រៅបរិវេណសាលា)</span>
                   </>
                 ) : (
                   <>

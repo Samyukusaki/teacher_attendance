@@ -22,6 +22,10 @@ import {
   Download,
   Upload,
   Database,
+  MapPin,
+  Compass,
+  ExternalLink,
+  Navigation,
 } from 'lucide-react';
 import { toKhmerNumber, STATUS_META } from '../utils/khmerDate';
 import { TeacherTimetableView } from './TeacherTimetableView';
@@ -122,6 +126,49 @@ export const AdminDashboard: React.FC = () => {
 
   // 7. Security / PIN
   const [newPin, setNewPin] = useState(adminPin);
+
+  // 8. GPS Location Setup State
+  const [gettingLocation, setGettingLocation] = useState(false);
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      showToast('error', 'មិនគាំទ្រ GPS', 'ឧបករណ៍របស់អ្នកមិនគាំទ្រមុខងារ GPS ឡើយ។');
+      return;
+    }
+    setGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGettingLocation(false);
+        const lat = Number(pos.coords.latitude.toFixed(6));
+        const lng = Number(pos.coords.longitude.toFixed(6));
+        setSchoolForm((prev) => ({
+          ...prev,
+          geoFence: {
+            enabled: prev.geoFence?.enabled ?? true,
+            requireLocation: prev.geoFence?.requireLocation ?? true,
+            latitude: lat,
+            longitude: lng,
+            radiusMeters: prev.geoFence?.radiusMeters || 500,
+            schoolName: prev.nameKh || 'វិទ្យាល័យ ប៊ុនរ៉ានី ហ៊ុនសែន ព្រៃពោន',
+          },
+        }));
+        showToast(
+          'success',
+          'ចាប់យកទីតាំង GPS បានជោគជ័យ',
+          `Latitude: ${lat}, Longitude: ${lng}`
+        );
+      },
+      (err) => {
+        setGettingLocation(false);
+        showToast(
+          'error',
+          'មិនអាចចាប់ទីតាំងបាន',
+          err.message || 'សូមអនុញ្ញាតសិទ្ធិចូលប្រើប្រាស់ទីតាំង (Location Permission)។'
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   // Handlers for School Info
   const handleSaveSchoolInfo = (e: React.FormEvent) => {
@@ -542,6 +589,177 @@ export const AdminDashboard: React.FC = () => {
                   onChange={(e) => setSchoolForm({ ...schoolForm, address: e.target.value })}
                   className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 focus:border-blue-500 outline-hidden shadow-2xs"
                 />
+              </div>
+
+              {/* GPS Geofencing Settings */}
+              <div className="md:col-span-2 mt-4 pt-4 border-t border-slate-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200">
+                        <MapPin className="w-4 h-4" />
+                      </span>
+                      <h4 className="font-bold text-sm text-slate-900 font-khmer">
+                        ការកំណត់ទីតាំង GPS សាលារៀន (School Geofencing)
+                      </h4>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                      កំណត់កូអរដោនេ GPS និងកាំបរិវេណសាលា ដើម្បីតម្រូវឱ្យគ្រូបង្រៀនចុះវត្តមានបានលុះត្រាតែស្ថិតនៅក្នុងបរិវេណសាលា
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleGetCurrentLocation}
+                    disabled={gettingLocation}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer disabled:opacity-50 self-start sm:self-auto"
+                  >
+                    <Navigation className={`w-3.5 h-3.5 ${gettingLocation ? 'animate-spin' : ''}`} />
+                    <span>{gettingLocation ? 'កំពុងចាប់យកទីតាំង...' : '📍 ចាប់យកទីតាំង GPS បច្ចុប្បន្ន'}</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div className="md:col-span-3 flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
+                    <div>
+                      <span className="text-xs font-bold text-slate-900 block">
+                        តម្រូវឱ្យស្ថិតនៅក្នុងបរិវេណសាលាពេលចុះវត្តមាន (Require GPS Geofence)
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        ប្រសិនបើបើក គ្រូបង្រៀនដែលស្ថិតនៅក្រៅបរិវេណសាលានឹងមិនអាចចុចបញ្ជូនវត្តមានបានឡើយ
+                      </span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={schoolForm.geoFence?.requireLocation ?? true}
+                        onChange={(e) =>
+                          setSchoolForm({
+                            ...schoolForm,
+                            geoFence: {
+                              ...(schoolForm.geoFence || {
+                                enabled: true,
+                                requireLocation: true,
+                                latitude: 11.5367,
+                                longitude: 105.2154,
+                                radiusMeters: 500,
+                                schoolName: schoolForm.nameKh,
+                              }),
+                              requireLocation: e.target.checked,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      កាំបរិវេណអនុញ្ញាត (គិតជាម៉ែត្រ)
+                    </label>
+                    <input
+                      type="number"
+                      value={schoolForm.geoFence?.radiusMeters || 500}
+                      onChange={(e) =>
+                        setSchoolForm({
+                          ...schoolForm,
+                          geoFence: {
+                            ...(schoolForm.geoFence || {
+                              enabled: true,
+                              requireLocation: true,
+                              latitude: 11.5367,
+                              longitude: 105.2154,
+                              radiusMeters: 500,
+                              schoolName: schoolForm.nameKh,
+                            }),
+                            radiusMeters: Math.max(50, Number(e.target.value) || 500),
+                          },
+                        })
+                      }
+                      min="50"
+                      max="5000"
+                      step="50"
+                      className="w-full text-xs font-bold bg-white border border-slate-200 rounded-xl p-3 text-slate-900 focus:border-blue-500 outline-hidden shadow-2xs"
+                    />
+                    <p className="text-[10px] text-slate-500 mt-1">ឧទាហរណ៍៖ ៥០០ ម៉ែត្រ (កាំរង្វង់ពីចំណុចកណ្តាល)</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      រយៈទទឹង Latitude
+                    </label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      value={schoolForm.geoFence?.latitude ?? 11.5367}
+                      onChange={(e) =>
+                        setSchoolForm({
+                          ...schoolForm,
+                          geoFence: {
+                            ...(schoolForm.geoFence || {
+                              enabled: true,
+                              requireLocation: true,
+                              latitude: 11.5367,
+                              longitude: 105.2154,
+                              radiusMeters: 500,
+                              schoolName: schoolForm.nameKh,
+                            }),
+                            latitude: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full text-xs font-mono font-bold bg-white border border-slate-200 rounded-xl p-3 text-slate-900 focus:border-blue-500 outline-hidden shadow-2xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      រយៈបណ្តោយ Longitude
+                    </label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      value={schoolForm.geoFence?.longitude ?? 105.2154}
+                      onChange={(e) =>
+                        setSchoolForm({
+                          ...schoolForm,
+                          geoFence: {
+                            ...(schoolForm.geoFence || {
+                              enabled: true,
+                              requireLocation: true,
+                              latitude: 11.5367,
+                              longitude: 105.2154,
+                              radiusMeters: 500,
+                              schoolName: schoolForm.nameKh,
+                            }),
+                            longitude: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full text-xs font-mono font-bold bg-white border border-slate-200 rounded-xl p-3 text-slate-900 focus:border-blue-500 outline-hidden shadow-2xs"
+                    />
+                  </div>
+
+                  {schoolForm.geoFence?.latitude && schoolForm.geoFence?.longitude && (
+                    <div className="md:col-span-3 flex items-center justify-between text-xs text-slate-600 bg-white p-2.5 rounded-lg border border-slate-200">
+                      <span className="font-mono text-[11px]">
+                        📍 ទីតាំងបច្ចុប្បន្ន៖ {schoolForm.geoFence.latitude}, {schoolForm.geoFence.longitude} (កាំ៖ {schoolForm.geoFence.radiusMeters || 500}m)
+                      </span>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${schoolForm.geoFence.latitude},${schoolForm.geoFence.longitude}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 hover:underline"
+                      >
+                        <span>បើកក្នុង Google Maps</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

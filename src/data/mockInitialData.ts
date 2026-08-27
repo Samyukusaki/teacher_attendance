@@ -14,6 +14,13 @@ export const initialSchoolInfo: SchoolInfo = {
   academicYear: '២០២៥ - ២០២៦',
   currentSemester: 'semester1',
   logoUrl: '',
+  geoFence: {
+    enabled: true,
+    latitude: 11.5367,
+    longitude: 105.2154,
+    radiusMeters: 500, // 500 meters
+    requireLocation: true,
+  },
 };
 
 export const initialSubjects: Subject[] = [

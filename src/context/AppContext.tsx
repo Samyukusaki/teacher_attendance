@@ -160,7 +160,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // School Info
   const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => {
-    return safeGetJSON<SchoolInfo>(LOCAL_STORAGE_KEYS.SCHOOL, initialSchoolInfo);
+    const loaded = safeGetJSON<SchoolInfo>(LOCAL_STORAGE_KEYS.SCHOOL, initialSchoolInfo);
+    if (!loaded.geoFence) {
+      return { ...loaded, geoFence: initialSchoolInfo.geoFence };
+    }
+    return loaded;
   });
 
   // Teachers

@@ -85,6 +85,20 @@ export interface AttendanceRecord {
   month: number; // 1 to 12
   year: number;
   notes?: string;
+  locationCoordinates?: {
+    latitude: number;
+    longitude: number;
+    distanceMeters: number;
+    isInsidePremises: boolean;
+  };
+}
+
+export interface GeoFenceConfig {
+  enabled: boolean;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  requireLocation: boolean;
 }
 
 export interface LeaveRequest {
@@ -114,6 +128,7 @@ export interface SchoolInfo {
   academicYear: string;
   currentSemester: 'semester1' | 'semester2';
   logoUrl?: string;
+  geoFence?: GeoFenceConfig;
 }
 
 export interface TelegramConfig {
