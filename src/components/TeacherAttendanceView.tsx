@@ -551,7 +551,7 @@ export const TeacherAttendanceView: React.FC = () => {
                           <strong className="text-emerald-700 font-bold underline">
                             {formatDistanceKhmer(geo.distanceMeters ?? 0)}
                           </strong>{' '}
-                          ពីចំណុចកណ្តាលសាលា / កម្រិតអនុញ្ញាត៖{' '}
+                          ពីចំណុចកណ្តាលព្រៃពោន / កម្រិតអនុញ្ញាត៖{' '}
                           <strong>{formatDistanceKhmer(schoolInfo.geoFence.radiusMeters)}</strong>)។
                         </span>
                       ) : geo.isInside === false ? (
@@ -560,12 +560,12 @@ export const TeacherAttendanceView: React.FC = () => {
                           <strong className="font-bold underline">
                             {formatDistanceKhmer(geo.distanceMeters ?? 0)}
                           </strong>{' '}
-                          ពីសាលា (កម្រិតកំណត់អនុញ្ញាតត្រឹម {formatDistanceKhmer(schoolInfo.geoFence.radiusMeters)})។
+                          ពីព្រៃពោន (កម្រិតកំណត់អនុញ្ញាតត្រឹម {formatDistanceKhmer(schoolInfo.geoFence.radiusMeters)})។
                         </span>
                       ) : (
                         <span>
                           {geo.error ||
-                            'សូមអនុញ្ញាតសិទ្ធិទីតាំង (Location) ដើម្បីផ្ទៀងផ្ទាត់វត្តមានក្នុងបរិវេណសាលា។'}
+                            'សូមអនុញ្ញាតសិទ្ធិទីតាំង (Location) ដើម្បីផ្ទៀងផ្ទាត់វត្តមានក្នុងបរិវេណព្រៃពោន។'}
                         </span>
                       )}
                     </p>
