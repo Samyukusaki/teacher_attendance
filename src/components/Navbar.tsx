@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   Menu,
   X,
+  Cloud,
 } from 'lucide-react';
 import { formatKhmerDate, toKhmerNumber, getTodayString } from '../utils/khmerDate';
 
@@ -31,6 +32,7 @@ export const Navbar: React.FC = () => {
     adminPin,
     showToast,
     leaveRequests,
+    isCloudSynced,
   } = useApp();
 
   const [showPinModal, setShowPinModal] = useState(false);
@@ -136,8 +138,26 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Cloud Firestore Sync Live Status */}
+            <div className="flex items-center gap-1.5 bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-[11px] transition-colors">
+              <Cloud className={`w-3.5 h-3.5 ${isCloudSynced ? 'text-sky-400' : 'text-slate-400'}`} />
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  isCloudSynced
+                    ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]'
+                    : 'bg-amber-400 animate-pulse'
+                }`}
+              />
+              <span className="text-slate-300 font-medium">
+                Cloud:{' '}
+                <span className="text-sky-300 font-bold uppercase tracking-wider text-[10px]">
+                  {isCloudSynced ? 'Online' : 'Syncing...'}
+                </span>
+              </span>
+            </div>
+
             {/* Telegram Live Status Pill */}
-            <div className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-[11px] transition-colors">
+            <div className="hidden sm:flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-[11px] transition-colors">
               <div
                 className={`w-2 h-2 rounded-full ${
                   telegramConfig.isEnabled && telegramConfig.botToken

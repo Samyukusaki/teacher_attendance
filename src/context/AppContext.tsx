@@ -28,7 +28,36 @@ import {
   formatDailySummaryMessage,
   formatLeaveRequestMessage,
 } from '../services/telegramService';
-import { getTodayString, getDayOfWeekKeyFromDate } from '../utils/khmerDate';
+import { getTodayString } from '../utils/khmerDate';
+import {
+  seedInitialFirestoreData,
+  subscribeSchoolInfo,
+  subscribeTelegramConfig,
+  subscribeAdminPin,
+  subscribeTeachers,
+  subscribeClasses,
+  subscribeSubjects,
+  subscribeTimetables,
+  subscribeAttendance,
+  subscribeLeaveRequests,
+  setFirestoreSchoolInfo,
+  setFirestoreTelegramConfig,
+  setFirestoreAdminPin,
+  saveTeacherDoc,
+  deleteTeacherDoc,
+  saveClassDoc,
+  deleteClassDoc,
+  saveSubjectDoc,
+  deleteSubjectDoc,
+  saveTimetableSlotDoc,
+  deleteTimetableSlotDoc,
+  saveTeacherTimetableBatch,
+  saveAttendanceRecordsBatch,
+  saveAttendanceRecordDoc,
+  deleteAttendanceRecordDoc,
+  saveLeaveRequestDoc,
+  resetAllFirestoreData,
+} from '../services/firestoreSync';
 
 interface AppContextType {
   currentRole: Role;
@@ -38,6 +67,9 @@ interface AppContextType {
   activeTab: 'teacher_submit' | 'weekly' | 'monthly_semester' | 'reports' | 'admin_dashboard' | 'leave_requests' | 'timetables';
   setActiveTab: (tab: 'teacher_submit' | 'weekly' | 'monthly_semester' | 'reports' | 'admin_dashboard' | 'leave_requests' | 'timetables') => void;
   
+  // Cloud Sync Status
+  isCloudSynced: boolean;
+
   // School Info
   schoolInfo: SchoolInfo;
   updateSchoolInfo: (info: Partial<SchoolInfo>) => void;
@@ -141,6 +173,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   >('teacher_submit');
 
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [isCloudSynced, setIsCloudSynced] = useState<boolean>(false);
+
   const [adminPin, setAdminPinState] = useState<string>(() => {
     try {
       return localStorage.getItem(LOCAL_STORAGE_KEYS.ADMIN_PIN) || '1234';
@@ -202,42 +236,100 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return safeGetJSON<TimetableSlot[]>(LOCAL_STORAGE_KEYS.TIMETABLES, initialTimetables);
   });
 
-  // LocalStorage Persist Effects
+  // --------------------------------------------------------------------------
+  // Realtime Cloud Firestore Synchronization Setup
+  // --------------------------------------------------------------------------
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.SCHOOL, JSON.stringify(schoolInfo));
-  }, [schoolInfo]);
+    let isMounted = true;
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.TEACHERS, JSON.stringify(teachers));
-  }, [teachers]);
+    // 1. Initial Cloud Seeding (if brand new Firestore instance)
+    seedInitialFirestoreData({
+      schoolInfo,
+      teachers,
+      classes,
+      subjects,
+      timetables,
+      attendanceRecords,
+      leaveRequests,
+      telegramConfig,
+      adminPin,
+    }).then(() => {
+      if (isMounted) setIsCloudSynced(true);
+    });
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.CLASSES, JSON.stringify(classes));
-  }, [classes]);
+    // 2. Real-time Subscriptions
+    const unsubSchool = subscribeSchoolInfo((info) => {
+      setSchoolInfo(info);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.SCHOOL, JSON.stringify(info));
+      setIsCloudSynced(true);
+    });
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.SUBJECTS, JSON.stringify(subjects));
-  }, [subjects]);
+    const unsubTelegram = subscribeTelegramConfig((cfg) => {
+      setTelegramConfig(cfg);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.TELEGRAM, JSON.stringify(cfg));
+      setIsCloudSynced(true);
+    });
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceRecords));
-  }, [attendanceRecords]);
+    const unsubPin = subscribeAdminPin((pin) => {
+      setAdminPinState(pin);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.ADMIN_PIN, pin);
+      setIsCloudSynced(true);
+    });
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LEAVE, JSON.stringify(leaveRequests));
-  }, [leaveRequests]);
+    const unsubTeachers = subscribeTeachers((list) => {
+      setTeachers(list);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.TEACHERS, JSON.stringify(list));
+      setIsCloudSynced(true);
+    });
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.TELEGRAM, JSON.stringify(telegramConfig));
-  }, [telegramConfig]);
+    const unsubClasses = subscribeClasses((list) => {
+      setClasses(list);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.CLASSES, JSON.stringify(list));
+      setIsCloudSynced(true);
+    });
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.TIMETABLES, JSON.stringify(timetables));
-  }, [timetables]);
+    const unsubSubjects = subscribeSubjects((list) => {
+      setSubjects(list);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.SUBJECTS, JSON.stringify(list));
+      setIsCloudSynced(true);
+    });
+
+    const unsubTimetables = subscribeTimetables((list) => {
+      setTimetables(list);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.TIMETABLES, JSON.stringify(list));
+      setIsCloudSynced(true);
+    });
+
+    const unsubAttendance = subscribeAttendance((list) => {
+      setAttendanceRecords(list);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.ATTENDANCE, JSON.stringify(list));
+      setIsCloudSynced(true);
+    });
+
+    const unsubLeave = subscribeLeaveRequests((list) => {
+      setLeaveRequests(list);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LEAVE, JSON.stringify(list));
+      setIsCloudSynced(true);
+    });
+
+    return () => {
+      isMounted = false;
+      unsubSchool();
+      unsubTelegram();
+      unsubPin();
+      unsubTeachers();
+      unsubClasses();
+      unsubSubjects();
+      unsubTimetables();
+      unsubAttendance();
+      unsubLeave();
+    };
+  }, []);
 
   const setAdminPin = (pin: string) => {
     setAdminPinState(pin);
     localStorage.setItem(LOCAL_STORAGE_KEYS.ADMIN_PIN, pin);
+    setFirestoreAdminPin(pin).catch((e) => console.warn('Error saving pin to Firestore:', e));
   };
 
   // Timetable Handlers
@@ -245,34 +337,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newId = `tt-${slot.teacherId}-${slot.dayOfWeek}-${slot.periodNumber}-${Date.now()}`;
     const newSlot: TimetableSlot = { ...slot, id: newId };
     setTimetables((prev) => {
-      // Remove any existing slot at the exact same teacher + day + period
       const filtered = prev.filter(
         (s) => !(s.teacherId === slot.teacherId && s.dayOfWeek === slot.dayOfWeek && s.periodNumber === slot.periodNumber)
       );
       return [...filtered, newSlot];
     });
+    saveTimetableSlotDoc(newSlot).catch((e) => console.warn('Error saving timetable slot to Firestore:', e));
     showToast('success', 'ជោគជ័យ', 'បានបន្ថែមម៉ោងបង្រៀនក្នុងកាលវិភាគ');
   };
 
   const updateTimetableSlot = (id: string, updates: Partial<TimetableSlot>) => {
-    setTimetables((prev) => prev.map((s) => (s.id === id ? { ...s, ...updates } : s)));
+    let updatedSlot: TimetableSlot | null = null;
+    setTimetables((prev) =>
+      prev.map((s) => {
+        if (s.id === id) {
+          updatedSlot = { ...s, ...updates };
+          return updatedSlot;
+        }
+        return s;
+      })
+    );
+    if (updatedSlot) {
+      saveTimetableSlotDoc(updatedSlot).catch((e) => console.warn('Error updating timetable in Firestore:', e));
+    }
     showToast('success', 'ជោគជ័យ', 'បានកែសម្រួលកាលវិភាគបង្រៀន');
   };
 
   const deleteTimetableSlot = (id: string) => {
     setTimetables((prev) => prev.filter((s) => s.id !== id));
+    deleteTimetableSlotDoc(id).catch((e) => console.warn('Error deleting timetable in Firestore:', e));
     showToast('info', 'បានលុប', 'បានលុបម៉ោងបង្រៀនចេញពីកាលវិភាគ');
   };
 
   const setTeacherTimetable = (teacherId: string, slots: Omit<TimetableSlot, 'id'>[]) => {
-    setTimetables((prev) => {
-      const otherTeachersSlots = prev.filter((s) => s.teacherId !== teacherId);
-      const newSlots: TimetableSlot[] = slots.map((s, idx) => ({
-        ...s,
-        id: `tt-${teacherId}-${s.dayOfWeek}-${s.periodNumber}-${idx}-${Date.now()}`,
-      }));
-      return [...otherTeachersSlots, ...newSlots];
-    });
+    const existing = [...timetables];
+    const otherTeachersSlots = existing.filter((s) => s.teacherId !== teacherId);
+    const newSlots: TimetableSlot[] = slots.map((s, idx) => ({
+      ...s,
+      id: `tt-${teacherId}-${s.dayOfWeek}-${s.periodNumber}-${idx}-${Date.now()}`,
+    }));
+
+    setTimetables([...otherTeachersSlots, ...newSlots]);
+    saveTeacherTimetableBatch(teacherId, newSlots, existing).catch((e) =>
+      console.warn('Error batch saving timetables to Firestore:', e)
+    );
     showToast('success', 'ជោគជ័យ', 'បានរក្សាទុកកាលវិភាគបង្រៀនប្រចាំសប្តាហ៍រួចរាល់');
   };
 
@@ -288,12 +396,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const other = prev.filter((s) => s.teacherId !== teacherId);
       return [...other, ...fresh];
     });
+    saveTeacherTimetableBatch(teacherId, fresh, timetables).catch((e) =>
+      console.warn('Error resetting timetable in Firestore:', e)
+    );
     showToast('info', 'កំណត់ឡើងវិញ', 'បានកំណត់កាលវិភាគគំរូឡើងវិញ');
   };
 
   // School Info updater
   const updateSchoolInfo = (info: Partial<SchoolInfo>) => {
-    setSchoolInfo((prev) => ({ ...prev, ...info }));
+    const updated = { ...schoolInfo, ...info };
+    setSchoolInfo(updated);
+    setFirestoreSchoolInfo(updated).catch((e) => console.warn('Error saving school info to Firestore:', e));
     showToast('success', 'ជោគជ័យ', 'បានកែប្រែព័ត៌មានសាលារៀនរួចរាល់');
   };
 
@@ -302,11 +415,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newId = `tch-${Date.now()}`;
     const newTeacher: Teacher = { ...tch, id: newId };
     setTeachers((prev) => [...prev, newTeacher]);
+    saveTeacherDoc(newTeacher).catch((e) => console.warn('Error saving teacher to Firestore:', e));
     showToast('success', 'ជោគជ័យ', `បានបន្ថែម ${newTeacher.nameKh} ដោយជោគជ័យ`);
   };
 
   const updateTeacher = (id: string, tch: Partial<Teacher>) => {
-    setTeachers((prev) => prev.map((t) => (t.id === id ? { ...t, ...tch } : t)));
+    let updatedTch: Teacher | null = null;
+    setTeachers((prev) =>
+      prev.map((t) => {
+        if (t.id === id) {
+          updatedTch = { ...t, ...tch };
+          return updatedTch;
+        }
+        return t;
+      })
+    );
+    if (updatedTch) {
+      saveTeacherDoc(updatedTch).catch((e) => console.warn('Error updating teacher in Firestore:', e));
+    }
     showToast('success', 'ជោគជ័យ', 'បានកែប្រែព័ត៌មានគ្រូបង្រៀនរួចរាល់');
   };
 
@@ -321,6 +447,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
     // Clean up timetable slots for this teacher
     setTimetables((prev) => prev.filter((s) => s.teacherId !== id));
+
+    deleteTeacherDoc(id).catch((e) => console.warn('Error deleting teacher in Firestore:', e));
     showToast('info', 'បានលុប', `បានលុប ${t?.nameKh || 'គ្រូបង្រៀន'} និងកាលវិភាគបង្រៀនចេញពីប្រព័ន្ធ`);
   };
 
@@ -329,16 +457,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newId = `cls-${Date.now()}`;
     const newClass: GradeClass = { ...cls, id: newId };
     setClasses((prev) => [...prev, newClass]);
+    saveClassDoc(newClass).catch((e) => console.warn('Error saving class to Firestore:', e));
     showToast('success', 'ជោគជ័យ', `បានបន្ថែមថ្នាក់ ${newClass.nameKh} រួចរាល់`);
   };
 
   const updateClass = (id: string, cls: Partial<GradeClass>) => {
-    setClasses((prev) => prev.map((c) => (c.id === id ? { ...c, ...cls } : c)));
+    let updatedCls: GradeClass | null = null;
+    setClasses((prev) =>
+      prev.map((c) => {
+        if (c.id === id) {
+          updatedCls = { ...c, ...cls };
+          return updatedCls;
+        }
+        return c;
+      })
+    );
+    if (updatedCls) {
+      saveClassDoc(updatedCls).catch((e) => console.warn('Error updating class in Firestore:', e));
+    }
     showToast('success', 'ជោគជ័យ', 'បានកែប្រែព័ត៌មានថ្នាក់រៀនរួចរាល់');
   };
 
   const deleteClass = (id: string) => {
     setClasses((prev) => prev.filter((c) => c.id !== id));
+    deleteClassDoc(id).catch((e) => console.warn('Error deleting class in Firestore:', e));
     showToast('info', 'បានលុប', 'បានលុបថ្នាក់រៀនចេញពីប្រព័ន្ធ');
   };
 
@@ -347,16 +489,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newId = `sub-${Date.now()}`;
     const newSubject: Subject = { ...subj, id: newId };
     setSubjects((prev) => [...prev, newSubject]);
+    saveSubjectDoc(newSubject).catch((e) => console.warn('Error saving subject to Firestore:', e));
     showToast('success', 'ជោគជ័យ', `បានបន្ថែមមុខវិជ្ជា ${newSubject.nameKh} រួចរាល់`);
   };
 
   const updateSubject = (id: string, subj: Partial<Subject>) => {
-    setSubjects((prev) => prev.map((s) => (s.id === id ? { ...s, ...subj } : s)));
+    let updatedSubj: Subject | null = null;
+    setSubjects((prev) =>
+      prev.map((s) => {
+        if (s.id === id) {
+          updatedSubj = { ...s, ...subj };
+          return updatedSubj;
+        }
+        return s;
+      })
+    );
+    if (updatedSubj) {
+      saveSubjectDoc(updatedSubj).catch((e) => console.warn('Error updating subject in Firestore:', e));
+    }
     showToast('success', 'ជោគជ័យ', 'បានកែប្រែព័ត៌មានមុខវិជ្ជារួចរាល់');
   };
 
   const deleteSubject = (id: string) => {
     setSubjects((prev) => prev.filter((s) => s.id !== id));
+    deleteSubjectDoc(id).catch((e) => console.warn('Error deleting subject in Firestore:', e));
     showToast('info', 'បានលុប', 'បានលុបមុខវិជ្ជាចេញពីប្រព័ន្ធ');
   };
 
@@ -393,7 +549,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return [...filtered, ...createdRecords];
     });
 
-    showToast('success', 'បានចុះវត្តមានជោគជ័យ', `បានរក្សាទុក និងចាក់សោទិន្នន័យវត្តមានចំនួន ${createdRecords.length} ម៉ោង`);
+    // Cloud Save to Firestore
+    saveAttendanceRecordsBatch(createdRecords).catch((e) =>
+      console.warn('Error saving attendance batch to Firestore:', e)
+    );
+
+    showToast('success', 'បានចុះវត្តមានជោគជ័យ', `បានរក្សាទុកលើ Cloud និងចាក់សោទិន្នន័យចំនួន ${createdRecords.length} ម៉ោង`);
 
     // Auto-send Telegram notification if enabled
     if (telegramConfig.isEnabled && telegramConfig.autoSendOnTeacherSubmit && telegramConfig.botToken && telegramConfig.chatId) {
@@ -410,12 +571,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Admin Record Operations
   const adminUpdateRecord = (id: string, updates: Partial<AttendanceRecord>) => {
-    setAttendanceRecords((prev) => prev.map((r) => (r.id === id ? { ...r, ...updates } : r)));
+    let updatedRecord: AttendanceRecord | null = null;
+    setAttendanceRecords((prev) =>
+      prev.map((r) => {
+        if (r.id === id) {
+          updatedRecord = { ...r, ...updates };
+          return updatedRecord;
+        }
+        return r;
+      })
+    );
+    if (updatedRecord) {
+      saveAttendanceRecordDoc(updatedRecord).catch((e) =>
+        console.warn('Error updating attendance record in Firestore:', e)
+      );
+    }
     showToast('success', 'ជោគជ័យ', 'អ្នកគ្រប់គ្រងបានកែសម្រួលទិន្នន័យវត្តមានរួចរាល់');
   };
 
   const adminDeleteRecord = (id: string) => {
     setAttendanceRecords((prev) => prev.filter((r) => r.id !== id));
+    deleteAttendanceRecordDoc(id).catch((e) =>
+      console.warn('Error deleting attendance record in Firestore:', e)
+    );
     showToast('info', 'បានលុប', 'បានលុបកំណត់ត្រាវត្តមានចេញពីប្រព័ន្ធ');
   };
 
@@ -427,6 +605,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       submittedBy: 'admin',
     };
     setAttendanceRecords((prev) => [...prev, newRecord]);
+    saveAttendanceRecordDoc(newRecord).catch((e) =>
+      console.warn('Error adding attendance record in Firestore:', e)
+    );
     showToast('success', 'ជោគជ័យ', 'បានបញ្ចូលកំណត់ត្រាវត្តមានថ្មីដោយអ្នកគ្រប់គ្រង');
   };
 
@@ -447,6 +628,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setLeaveRequests((prev) => [newLeave, ...prev]);
+    saveLeaveRequestDoc(newLeave).catch((e) => console.warn('Error saving leave request in Firestore:', e));
     showToast('success', 'បានស្នើសុំច្បាប់', 'ពាក្យស្នើសុំច្បាប់ត្រូវបានបញ្ជូនទៅកាន់អ្នកគ្រប់គ្រងដើម្បីពិនិត្យ');
 
     // Auto-send Telegram Notification
@@ -463,19 +645,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateLeaveStatus = async (id: string, status: 'approved' | 'rejected', adminNote?: string) => {
+    let updatedLeave: LeaveRequest | null = null;
     setLeaveRequests((prev) =>
-      prev.map((lr) =>
-        lr.id === id
-          ? {
-              ...lr,
-              status,
-              adminNote,
-              approvedBy: schoolInfo.principalName || 'អ្នកគ្រប់គ្រងសាលា',
-              approvedAt: new Date().toISOString(),
-            }
-          : lr
-      )
+      prev.map((lr) => {
+        if (lr.id === id) {
+          updatedLeave = {
+            ...lr,
+            status,
+            adminNote,
+            approvedBy: schoolInfo.principalName || 'អ្នកគ្រប់គ្រងសាលា',
+            approvedAt: new Date().toISOString(),
+          };
+          return updatedLeave;
+        }
+        return lr;
+      })
     );
+
+    if (updatedLeave) {
+      saveLeaveRequestDoc(updatedLeave).catch((e) => console.warn('Error updating leave status in Firestore:', e));
+    }
 
     const label = status === 'approved' ? 'អនុម័ត' : 'បដិសេធ';
     showToast('info', `បាន${label}ច្បាប់`, `បាន${label}ពាក្យស្នើសុំច្បាប់រួចរាល់`);
@@ -483,7 +672,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Telegram Config
   const updateTelegramConfig = (cfg: Partial<TelegramConfig>) => {
-    setTelegramConfig((prev) => ({ ...prev, ...cfg }));
+    const updated = { ...telegramConfig, ...cfg };
+    setTelegramConfig(updated);
+    setFirestoreTelegramConfig(updated).catch((e) => console.warn('Error saving telegram config in Firestore:', e));
     showToast('success', 'ជោគជ័យ', 'បានរក្សាទុកការកំណត់ Telegram Bot រួចរាល់');
   };
 
@@ -502,7 +693,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const res = await sendTelegramMessage(telegramConfig.botToken, telegramConfig.chatId, testMsg);
     if (res.success) {
-      setTelegramConfig((prev) => ({ ...prev, lastSentAt: new Date().toISOString() }));
+      const updated = { ...telegramConfig, lastSentAt: new Date().toISOString() };
+      setTelegramConfig(updated);
+      setFirestoreTelegramConfig(updated).catch((e) => console.warn('Error updating lastSentAt in Firestore:', e));
       showToast('success', 'ភ្ជាប់ជោគជ័យ!', 'សារតេស្តត្រូវបានផ្ញើទៅកាន់ Telegram របស់អ្នកគ្រប់គ្រងហើយ 🎉');
     } else {
       showToast('error', 'បរាជ័យ', res.message);
@@ -518,7 +711,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const res = await sendTelegramMessage(telegramConfig.botToken, telegramConfig.chatId, msg);
 
     if (res.success) {
-      setTelegramConfig((prev) => ({ ...prev, lastSentAt: new Date().toISOString() }));
+      const updated = { ...telegramConfig, lastSentAt: new Date().toISOString() };
+      setTelegramConfig(updated);
+      setFirestoreTelegramConfig(updated).catch((e) => console.warn('Error updating lastSentAt in Firestore:', e));
       showToast('success', 'បានផ្ញើជោគជ័យ', 'របាយការណ៍សង្ខេបប្រចាំថ្ងៃត្រូវបានផ្ញើទៅកាន់ Telegram របស់អ្នកគ្រប់គ្រងរួចរាល់ 📊');
     } else {
       showToast('error', 'មិនអាចផ្ញើបាន', res.message);
@@ -527,15 +722,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const resetToDefaultData = () => {
+    const freshAtt = generateInitialAttendance();
+    const freshTt = generateInitialTimetables();
+
     setSchoolInfo(initialSchoolInfo);
     setTeachers(initialTeachers);
     setClasses(initialClasses);
     setSubjects(initialSubjects);
-    setTimetables(generateInitialTimetables());
-    setAttendanceRecords(generateInitialAttendance());
+    setTimetables(freshTt);
+    setAttendanceRecords(freshAtt);
     setLeaveRequests(initialLeaveRequests);
     setTelegramConfig(initialTelegramConfig);
-    showToast('info', 'កំណត់ឡើងវិញ', 'បានកំណត់ទិន្នន័យគំរូដើមឡើងវិញដោយជោគជ័យ');
+    setAdminPinState('1234');
+
+    resetAllFirestoreData({
+      schoolInfo: initialSchoolInfo,
+      teachers: initialTeachers,
+      classes: initialClasses,
+      subjects: initialSubjects,
+      timetables: freshTt,
+      attendanceRecords: freshAtt,
+      leaveRequests: initialLeaveRequests,
+      telegramConfig: initialTelegramConfig,
+      adminPin: '1234',
+    }).catch((e) => console.warn('Error resetting Firestore:', e));
+
+    showToast('info', 'កំណត់ឡើងវិញ', 'បានកំណត់ទិន្នន័យគំរូដើមឡើងវិញលើ Cloud ដោយជោគជ័យ');
   };
 
   const exportAllDataJSON = () => {
@@ -583,7 +795,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (data.telegramConfig) setTelegramConfig(data.telegramConfig);
       if (data.adminPin) setAdminPin(data.adminPin);
 
-      showToast('success', 'បញ្ចូលទិន្នន័យជោគជ័យ', 'ទិន្នន័យទាំងអស់ត្រូវបានផ្ទុកចូលប្រព័ន្ធដោយជោគជ័យ 🎉');
+      // Sync imported backup directly to Cloud Firestore
+      resetAllFirestoreData({
+        schoolInfo: data.schoolInfo || initialSchoolInfo,
+        teachers: data.teachers || initialTeachers,
+        classes: data.classes || initialClasses,
+        subjects: data.subjects || initialSubjects,
+        timetables: data.timetables || initialTimetables,
+        attendanceRecords: data.attendanceRecords || generateInitialAttendance(),
+        leaveRequests: data.leaveRequests || initialLeaveRequests,
+        telegramConfig: data.telegramConfig || initialTelegramConfig,
+        adminPin: data.adminPin || '1234',
+      }).catch((e) => console.warn('Error syncing imported data to Firestore:', e));
+
+      showToast('success', 'បញ្ចូលទិន្នន័យជោគជ័យ', 'ទិន្នន័យទាំងអស់ត្រូវបានផ្ទុកចូលប្រព័ន្ធ និងរក្សាទុកលើ Cloud រួចរាល់ 🎉');
       return true;
     } catch (e) {
       console.error(e);
@@ -601,6 +826,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedTeacherId,
         activeTab,
         setActiveTab,
+        isCloudSynced,
         schoolInfo,
         updateSchoolInfo,
         teachers,

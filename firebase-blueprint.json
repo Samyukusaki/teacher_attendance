@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "SchoolInfo": {
+      "collection": "school_data",
+      "fields": {
+        "nameKh": { "type": "string", "description": "School Khmer Name" },
+        "nameEn": { "type": "string", "description": "School English Name" },
+        "geoFence": { "type": "map", "description": "Geofence settings" }
+      }
+    },
+    "Teacher": {
+      "collection": "teachers",
+      "fields": {
+        "nameKh": { "type": "string", "description": "Teacher Khmer Name" },
+        "code": { "type": "string", "description": "Teacher ID Code" },
+        "phone": { "type": "string", "description": "Phone number" }
+      }
+    },
+    "GradeClass": {
+      "collection": "classes",
+      "fields": {
+        "nameKh": { "type": "string", "description": "Class Name" },
+        "room": { "type": "string", "description": "Room" }
+      }
+    },
+    "Subject": {
+      "collection": "subjects",
+      "fields": {
+        "nameKh": { "type": "string", "description": "Subject Name" },
+        "code": { "type": "string", "description": "Subject Code" }
+      }
+    },
+    "AttendanceRecord": {
+      "collection": "attendance",
+      "fields": {
+        "teacherId": { "type": "string", "description": "Teacher ID" },
+        "date": { "type": "string", "description": "Date YYYY-MM-DD" },
+        "status": { "type": "string", "description": "Attendance status" }
+      }
+    },
+    "LeaveRequest": {
+      "collection": "leave_requests",
+      "fields": {
+        "teacherId": { "type": "string", "description": "Teacher ID" },
+        "status": { "type": "string", "description": "Leave status" }
+      }
+    },
+    "TimetableSlot": {
+      "collection": "timetables",
+      "fields": {
+        "teacherId": { "type": "string", "description": "Teacher ID" },
+        "dayOfWeek": { "type": "string", "description": "Day of week" },
+        "periodNumber": { "type": "number", "description": "Period number" }
+      }
+    }
+  }
+}

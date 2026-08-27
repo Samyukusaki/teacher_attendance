@@ -26,6 +26,7 @@ import {
   Compass,
   ExternalLink,
   Navigation,
+  Cloud,
 } from 'lucide-react';
 import { toKhmerNumber, STATUS_META } from '../utils/khmerDate';
 import { TeacherTimetableView } from './TeacherTimetableView';
@@ -1427,8 +1428,31 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-600 font-khmer leading-relaxed mb-6">
-              លោកអ្នកអាចទាញយកទិន្នន័យទាំងអស់ (ព័ត៌មានសាលា បញ្ជីគ្រូ កាលវិភាគ ថ្នាក់រៀន មុខវិជ្ជា និងវត្តមាន) ទៅជាឯកសារ <b>.JSON</b> ដើម្បីរក្សាទុក ឬផ្ទេរទៅកាន់ <b>GitHub Pages</b> / ឧបករណ៍ផ្សេងទៀតបានយ៉ាងងាយស្រួល។
+              ប្រព័ន្ធត្រូវបានភ្ជាប់ជាមួយ <b>Cloud Database (Firebase Firestore)</b> ដោយស្វ័យប្រវត្តិ។ រាល់ការចុះវត្តមាន និងការកែប្រែទិន្នន័យ នឹងត្រូវធ្វើសមកាលកម្ម (Real-time Sync) ទៅគ្រប់ទូរសព្ទដៃ និងកុំព្យូទ័រទាំងអស់ភ្លាមៗ។ លោកអ្នកក៏អាចទាញយកទិន្នន័យទៅជាឯកសារ <b>.JSON</b> ដើម្បីរក្សាទុកទុកជាបម្រុងផងដែរ។
             </p>
+
+            {/* Cloud Real-time Sync Status Banner */}
+            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white border border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-600/30 border border-blue-400/40 flex items-center justify-center text-blue-400 flex-shrink-0">
+                  <Cloud className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-bold text-sm text-white font-khmer">
+                      Cloud Database (Firebase Real-time)
+                    </h4>
+                    <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      ដំណើរការផ្ទាល់ (Connected)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 mt-0.5">
+                    ទិន្នន័យទាំងអស់ចែករំលែកដោយស្វ័យប្រវត្តិតាមរយៈ Cloud មិនបាត់បង់ទិន្នន័យពេលប្តូរឧបករណ៍ឡើយ
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Export Card */}
