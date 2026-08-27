@@ -116,48 +116,48 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200/90 shadow-xs no-print">
       {/* Geometric Dark Topbar */}
-      <div className="bg-[#0F172A] text-white px-4 sm:px-6 py-2.5 text-xs border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
+      <div className="bg-[#0F172A] text-white px-3 sm:px-6 py-2 text-xs border-b border-slate-800">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span className="font-mono font-bold tracking-tight text-blue-400 uppercase text-[11px]">
-                EDU-SYNC ATTENDANCE
+              <span className="font-mono font-bold tracking-tight text-blue-400 uppercase text-[10px] sm:text-[11px]">
+                EDU-SYNC
               </span>
             </div>
             <span className="text-slate-600 hidden sm:inline">|</span>
-            <div className="flex items-center gap-2 text-slate-300 text-[11px]">
-              <span className="font-semibold text-slate-200">
-                ឆ្នាំសិក្សា {schoolInfo.academicYear}
+            <div className="flex items-center gap-1.5 text-slate-300 text-[10px] sm:text-[11px] truncate">
+              <span className="font-semibold text-slate-200 truncate">
+                ឆ្នាំ {schoolInfo.academicYear}
               </span>
               <span>•</span>
-              <span>
+              <span className="truncate">
                 {schoolInfo.currentSemester === 'semester1' ? 'ឆមាសទី ១' : 'ឆមាសទី ២'}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Cloud Firestore Sync Live Status */}
-            <div className="flex items-center gap-1.5 bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-[11px] transition-colors">
-              <Cloud className={`w-3.5 h-3.5 ${isCloudSynced ? 'text-sky-400' : 'text-slate-400'}`} />
+            <div className="flex items-center gap-1.5 bg-slate-800/90 px-2 sm:px-3 py-1 rounded-full border border-slate-700 text-[10px] sm:text-[11px] transition-colors">
+              <Cloud className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isCloudSynced ? 'text-sky-400' : 'text-slate-400'}`} />
               <div
-                className={`w-2 h-2 rounded-full ${
+                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
                   isCloudSynced
                     ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]'
                     : 'bg-amber-400 animate-pulse'
                 }`}
               />
               <span className="text-slate-300 font-medium">
-                Cloud:{' '}
-                <span className="text-sky-300 font-bold uppercase tracking-wider text-[10px]">
-                  {isCloudSynced ? 'Online' : 'Syncing...'}
+                <span className="hidden xs:inline">Cloud: </span>
+                <span className="text-sky-300 font-bold uppercase tracking-wider text-[9px] sm:text-[10px]">
+                  {isCloudSynced ? 'Online' : 'Sync...'}
                 </span>
               </span>
             </div>
 
             {/* Telegram Live Status Pill */}
-            <div className="hidden sm:flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-[11px] transition-colors">
+            <div className="hidden md:flex items-center gap-2 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700 text-[11px] transition-colors">
               <div
                 className={`w-2 h-2 rounded-full ${
                   telegramConfig.isEnabled && telegramConfig.botToken
@@ -166,7 +166,7 @@ export const Navbar: React.FC = () => {
                 }`}
               />
               <span className="text-slate-300 font-medium">
-                Telegram Sync:{' '}
+                Telegram:{' '}
                 {telegramConfig.isEnabled && telegramConfig.botToken ? (
                   <span className="text-emerald-400 font-bold uppercase tracking-wider text-[10px]">
                     Active
@@ -179,22 +179,17 @@ export const Navbar: React.FC = () => {
               </span>
             </div>
 
-            {/* Date Display */}
-            <div className="hidden lg:block text-slate-400 text-[11px] font-khmer">
-              {formatKhmerDate(getTodayString())}
-            </div>
-
             {/* Current Role Tag */}
             <div className="flex items-center">
               {currentRole === 'admin' ? (
-                <div className="flex items-center gap-1.5 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Admin Mode</span>
+                <div className="flex items-center gap-1 bg-blue-600 text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span>Admin</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg text-[11px] font-medium">
-                  <GraduationCap className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Teacher Portal</span>
+                <div className="flex items-center gap-1 bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-medium">
+                  <GraduationCap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400" />
+                  <span>គ្រូបង្រៀន</span>
                 </div>
               )}
             </div>
@@ -203,50 +198,51 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* Main Geometric Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5">
-        <div className="flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3.5">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo & School Header */}
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-[#0F172A] text-white flex items-center justify-center shadow-sm border border-slate-700 flex-shrink-0">
-              <Building2 className="w-5 h-5 text-blue-400" />
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-[#0F172A] text-white flex items-center justify-center shadow-xs border border-slate-700 flex-shrink-0">
+              <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-moul leading-none">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h1 className="text-xs sm:text-base md:text-lg font-bold text-slate-900 font-moul leading-snug sm:leading-relaxed truncate">
                   {schoolInfo.nameKh || 'វិទ្យាល័យ ប៊ុនរ៉ានី ហ៊ុនសែន ព្រៃពោន'}
                 </h1>
-                <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
+                <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 flex-shrink-0">
                   Official
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-khmer mt-1 flex items-center gap-1.5">
-                <span className="font-semibold text-slate-700">ប្រព័ន្ធគ្រប់គ្រងវត្តមានគ្រូបង្រៀន</span>
-                <span className="text-slate-300">•</span>
-                <span className="text-slate-500 text-[11px]">EduSync Attendance Engine</span>
+              <p className="text-[10px] sm:text-xs text-slate-500 font-khmer mt-0.5 flex items-center gap-1.5 leading-tight truncate">
+                <span className="font-semibold text-slate-700 truncate">ប្រព័ន្ធគ្រប់គ្រងវត្តមានគ្រូបង្រៀន</span>
+                <span className="text-slate-300 hidden md:inline">•</span>
+                <span className="text-slate-500 text-[11px] hidden md:inline">EduSync Engine</span>
               </p>
             </div>
           </div>
 
           {/* Right Mode Switchers */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {currentRole === 'admin' ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   id="btn-nav-admin-dashboard"
                   onClick={() => setActiveTab('admin_dashboard')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
                     activeTab === 'admin_dashboard'
                       ? 'bg-blue-600 text-white shadow-xs'
                       : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
                   }`}
                 >
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>ផ្ទាំងគ្រប់គ្រងសាលា (Admin)</span>
+                  <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">ផ្ទាំងគ្រប់គ្រងសាលា (Admin)</span>
+                  <span className="sm:hidden">Admin</span>
                 </button>
                 <button
                   id="btn-nav-switch-teacher"
                   onClick={handleSwitchToTeacher}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5 border border-slate-200 transition-colors cursor-pointer"
+                  className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1 border border-slate-200 transition-colors cursor-pointer"
                   title="ប្តូរទៅទម្រង់លោកគ្រូ-អ្នកគ្រូ"
                 >
                   <LogOut className="w-3.5 h-3.5 text-slate-500" />
@@ -257,17 +253,18 @@ export const Navbar: React.FC = () => {
               <button
                 id="btn-nav-switch-admin"
                 onClick={handleAdminSwitch}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0F172A] text-white hover:bg-slate-800 shadow-xs flex items-center gap-2 transition-colors cursor-pointer border border-slate-800"
+                className="px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold bg-[#0F172A] text-white hover:bg-slate-800 shadow-xs flex items-center gap-1.5 sm:gap-2 transition-colors cursor-pointer border border-slate-800"
               >
-                <KeyRound className="w-4 h-4 text-blue-400" />
-                <span>ផ្ទាំងគ្រប់គ្រង Admin</span>
+                <KeyRound className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                <span className="hidden sm:inline">ផ្ទាំងគ្រប់គ្រង Admin</span>
+                <span className="sm:hidden">Admin</span>
               </button>
             )}
 
             {/* Mobile Hamburger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer"
+              className="md:hidden p-1.5 sm:p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -340,7 +337,7 @@ export const Navbar: React.FC = () => {
                   }}
                   className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors ${
                     isActive
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-blue-600 text-white shadow-xs'
                       : 'text-slate-700 hover:bg-slate-100 bg-slate-50'
                   }`}
                 >
@@ -361,6 +358,22 @@ export const Navbar: React.FC = () => {
                 </button>
               );
             })}
+            {currentRole === 'admin' && (
+              <button
+                onClick={() => {
+                  setActiveTab('admin_dashboard');
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 transition-colors ${
+                  activeTab === 'admin_dashboard'
+                    ? 'bg-[#0F172A] text-white shadow-xs'
+                    : 'text-blue-700 bg-blue-50 border border-blue-200'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>ផ្ទាំងគ្រប់គ្រងសាលា (Admin Settings)</span>
+              </button>
+            )}
           </div>
         )}
       </div>

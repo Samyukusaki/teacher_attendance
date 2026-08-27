@@ -244,68 +244,68 @@ export const TeacherAttendanceView: React.FC = () => {
   return (
     <div className="space-y-6 font-sans">
       {/* Top Geometric Summary Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              ម៉ោងបង្រៀនសរុប (ខែនេះ)
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              ម៉ោងបង្រៀន (ខែនេះ)
             </span>
             <div className="w-2 h-2 rounded-full bg-blue-500" />
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-slate-900">
+          <div className="mt-1.5 sm:mt-2 flex items-baseline justify-between">
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900">
               {toKhmerNumber(totalSessionsTaught)}
             </span>
-            <span className="text-[11px] font-semibold text-slate-500">ម៉ោង</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500">ម៉ោង</span>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               វត្តមានពេញលេញ
             </span>
             <div className="w-2 h-2 rounded-full bg-emerald-500" />
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-emerald-600">
+          <div className="mt-1.5 sm:mt-2 flex items-baseline justify-between">
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-600">
               {toKhmerNumber(presentCount)}
             </span>
-            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span className="text-[10px] sm:text-[11px] font-bold text-emerald-700 bg-emerald-50 px-1.5 sm:px-2 py-0.5 rounded border border-emerald-200">
               {toKhmerNumber(attRate)}%
             </span>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               មកយឺត & សុំច្បាប់
             </span>
             <div className="w-2 h-2 rounded-full bg-amber-500" />
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-amber-600">
+          <div className="mt-1.5 sm:mt-2 flex items-baseline justify-between">
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-600">
               {toKhmerNumber(lateCount + leaveCount)}
             </span>
-            <span className="text-[11px] font-semibold text-slate-500">
+            <span className="text-[9px] sm:text-[11px] font-semibold text-slate-500">
               ច្បាប់ {toKhmerNumber(leaveCount)} | យឺត {toKhmerNumber(lateCount)}
             </span>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               អវត្តមាន (គ្មានច្បាប់)
             </span>
             <div className="w-2 h-2 rounded-full bg-rose-500" />
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-rose-600">
+          <div className="mt-1.5 sm:mt-2 flex items-baseline justify-between">
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-rose-600">
               {toKhmerNumber(absentCount)}
             </span>
-            <span className="text-[11px] font-semibold text-rose-600">
+            <span className="text-[9px] sm:text-[11px] font-semibold text-rose-600">
               {absentCount === 0 ? 'គ្មានអវត្តមាន' : `${toKhmerNumber(absentCount)} ម៉ោង`}
             </span>
           </div>
@@ -313,17 +313,17 @@ export const TeacherAttendanceView: React.FC = () => {
       </div>
 
       {/* Teacher Profile & Quick Selector Header */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/90 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
           {/* Teacher Selector */}
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center font-bold text-xl border border-slate-800 shadow-sm flex-shrink-0">
+          <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center font-bold text-sm sm:text-xl border border-slate-800 shadow-xs flex-shrink-0">
               <span className="text-blue-400 font-mono">
                 {currentTeacher?.code || 'TCH'}
               </span>
             </div>
-            <div>
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+            <div className="flex-1 min-w-0">
+              <label className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                 ជ្រើសរើសឈ្មោះលោកគ្រូ-អ្នកគ្រូ
               </label>
               <div className="relative mt-1">
@@ -331,7 +331,7 @@ export const TeacherAttendanceView: React.FC = () => {
                   id="select-teacher-attendance"
                   value={selectedTeacherId}
                   onChange={(e) => setSelectedTeacherId(e.target.value)}
-                  className="appearance-none font-bold text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl px-3.5 py-2 pr-9 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-hidden cursor-pointer min-w-[240px]"
+                  className="w-full appearance-none font-bold text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 sm:px-3.5 sm:py-2 pr-8 text-xs sm:text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-hidden cursor-pointer"
                 >
                   {teachers.map((t) => (
                     <option key={t.id} value={t.id}>
@@ -339,9 +339,9 @@ export const TeacherAttendanceView: React.FC = () => {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="w-4 h-4 text-slate-500 absolute right-3 top-3 pointer-events-none" />
+                <ChevronDown className="w-4 h-4 text-slate-500 absolute right-2.5 top-2.5 pointer-events-none" />
               </div>
-              <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
+              <p className="text-[10px] sm:text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <span>📞 {currentTeacher?.phone}</span>
                 <span className="text-slate-300">•</span>
                 <span className="font-medium text-slate-700">
@@ -352,27 +352,27 @@ export const TeacherAttendanceView: React.FC = () => {
           </div>
 
           {/* Date Picker & Quick Actions */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <label className="text-xs font-bold text-slate-700">កាលបរិច្ឆេទ៖</label>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 sm:py-2 flex-1 sm:flex-initial">
+              <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <label className="text-xs font-bold text-slate-700 whitespace-nowrap">កាលបរិច្ឆេទ៖</label>
               <input
                 id="input-attendance-date"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="text-xs font-bold text-slate-900 bg-transparent outline-hidden cursor-pointer"
+                className="text-xs font-bold text-slate-900 bg-transparent outline-hidden cursor-pointer w-full"
               />
             </div>
 
             <button
               type="button"
               onClick={() => setShowTimetableModal(true)}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors flex items-center gap-1.5 cursor-pointer font-khmer"
+              className="px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-khmer flex-1 sm:flex-initial"
               title="មើល ឬកែសម្រួលកាលវិភាគបង្រៀនរបស់គ្រូនេះ"
             >
               <Calendar className="w-3.5 h-3.5 text-blue-600" />
-              <span>កាលវិភាគបង្រៀន</span>
+              <span>កាលវិភាគ</span>
               <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.2 rounded-full">
                 {toKhmerNumber(dayScheduledSlots.length)}
               </span>
@@ -382,7 +382,7 @@ export const TeacherAttendanceView: React.FC = () => {
               <button
                 type="button"
                 onClick={handleQuickMarkAllPresent}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-initial"
               >
                 <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                 <span>វត្តមានទាំងអស់</span>
@@ -392,9 +392,9 @@ export const TeacherAttendanceView: React.FC = () => {
         </div>
 
         {/* Timetable Notification & Sync Banner */}
-        <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-slate-700 font-khmer">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-slate-700 font-khmer text-[11px] sm:text-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
             <span>
               កាលវិភាគសម្រាប់ <strong>{dayInfo?.nameKh || 'ថ្ងៃនេះ'}</strong>៖
             </span>
@@ -412,9 +412,9 @@ export const TeacherAttendanceView: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowTimetableModal(true)}
-            className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto"
           >
-            <span>កែសម្រួលកាលវិភាគបង្រៀន ➔</span>
+            <span>កែសម្រួលកាលវិភាគ ➔</span>
           </button>
         </div>
       </div>
@@ -644,21 +644,21 @@ export const TeacherAttendanceView: React.FC = () => {
                     }`}
                   >
                     {/* Period Header */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <label className="flex items-center gap-2.5 cursor-pointer">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                      <label className="flex items-center gap-2.5 cursor-pointer min-w-0">
                         <input
                           type="checkbox"
                           checked={period.enabled}
                           onChange={() => handleTogglePeriod(period.periodId)}
-                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
+                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer flex-shrink-0"
                         />
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                             <span className="text-xs font-black text-slate-900">
                               {slotDef?.name}
                             </span>
                             <span
-                              className={`text-[10px] font-bold px-2 py-0.2 rounded ${
+                              className={`text-[10px] font-bold px-1.5 sm:px-2 py-0.2 rounded ${
                                 isMorning
                                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                                   : 'bg-amber-50 text-amber-700 border border-amber-200'
@@ -676,7 +676,7 @@ export const TeacherAttendanceView: React.FC = () => {
                       </label>
 
                       {period.enabled && (
-                        <div className="flex items-center gap-1">
+                        <div className="grid grid-cols-4 sm:flex items-center gap-1 w-full sm:w-auto">
                           {(['present', 'late', 'permission', 'absent'] as AttendanceStatus[]).map(
                             (st) => {
                               const meta = STATUS_META[st];
@@ -686,7 +686,7 @@ export const TeacherAttendanceView: React.FC = () => {
                                   key={st}
                                   type="button"
                                   onClick={() => handleUpdatePeriod(period.periodId, 'status', st)}
-                                  className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                  className={`px-1.5 sm:px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold text-center transition-all cursor-pointer ${
                                     isSelected
                                       ? `${meta.color} ring-1 shadow-2xs font-black`
                                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'

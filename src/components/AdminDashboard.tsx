@@ -356,33 +356,33 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-6 font-sans">
       {/* Header Banner - Geometric Balance Deep Slate */}
-      <div className="bg-[#0F172A] text-white rounded-2xl p-6 shadow-xs border border-slate-800">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-xs border border-blue-500/30">
-              <ShieldCheck className="w-6 h-6 text-white" />
+      <div className="bg-[#0F172A] text-white rounded-2xl p-4 sm:p-6 shadow-xs border border-slate-800">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-start sm:items-center gap-3 sm:gap-3.5">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-xs border border-blue-500/30 flex-shrink-0">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold tracking-widest text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60 uppercase">
+                <span className="text-[9px] sm:text-[10px] font-bold tracking-widest text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/60 uppercase">
                   Management Center
                 </span>
                 <span className="text-xs text-slate-400">|</span>
-                <span className="text-xs text-emerald-400 font-semibold">Active Session</span>
+                <span className="text-[11px] sm:text-xs text-emerald-400 font-semibold">Active Session</span>
               </div>
-              <h2 className="text-base sm:text-lg font-bold font-khmer leading-tight text-white mt-1">
+              <h2 className="text-sm sm:text-base md:text-lg font-bold font-khmer leading-tight text-white mt-1">
                 ផ្ទាំងគ្រប់គ្រងទូទៅរបស់សាលារៀន (Admin Dashboard)
               </h2>
-              <p className="text-xs text-slate-400 font-khmer mt-0.5">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-khmer mt-0.5">
                 គ្រប់គ្រងព័ត៌មានសាលា បន្ថែមថ្នាក់រៀន បន្ថែមមុខវិជ្ជា បន្ថែមគ្រូបង្រៀន និងការកំណត់ Telegram Bot
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={exportAllDataJSON}
-              className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+              className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 sm:gap-2 shadow-xs transition-colors cursor-pointer"
               title="ទាញយកទិន្នន័យបម្រុងទុក (Export JSON)"
             >
               <Download className="w-3.5 h-3.5" />
@@ -390,15 +390,15 @@ export const AdminDashboard: React.FC = () => {
             </button>
             <button
               onClick={() => setAdminTab('backup')}
-              className="px-3.5 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 border border-slate-700 transition-colors cursor-pointer"
+              className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 sm:gap-2 border border-slate-700 transition-colors cursor-pointer"
               title="បញ្ចូលទិន្នន័យ (Import JSON)"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>បញ្ចូលទិន្នន័យ (Restore)</span>
+              <span>បញ្ចូលទិន្នន័យ</span>
             </button>
             <button
               onClick={resetToDefaultData}
-              className="px-3 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
+              className="p-2 sm:px-3 sm:py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
               title="កំណត់ទិន្នន័យគំរូដើមឡើងវិញ"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -407,7 +407,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Sub Navigation Tabs */}
-        <div className="flex items-center gap-1.5 mt-6 pt-4 border-t border-slate-800/80 overflow-x-auto">
+        <div className="flex items-center gap-1.5 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-800/80 overflow-x-auto pb-1">
           {[
             { id: 'school', label: 'ព័ត៌មានសាលារៀន', icon: Building2 },
             { id: 'teachers', label: 'គ្រប់គ្រងគ្រូបង្រៀន', icon: Users, badge: teachers.length },
@@ -425,16 +425,16 @@ export const AdminDashboard: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setAdminTab(tab.id as any)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1.5 sm:gap-2 transition-all whitespace-nowrap cursor-pointer ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>{tab.label}</span>
                 {tab.badge !== undefined && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
+                  <span className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
                     isActive ? 'bg-blue-800 text-blue-100' : 'bg-slate-800 text-slate-300'
                   }`}>
                     {toKhmerNumber(tab.badge)}
