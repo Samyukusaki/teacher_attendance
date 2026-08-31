@@ -847,42 +847,6 @@ export const TeacherAttendanceView: React.FC = () => {
         </form>
       )}
 
-      {/* Telegram Live Synchronization Card */}
-      <div className="bg-[#0F172A] rounded-2xl p-5 border border-slate-800 text-white shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
-              <Send className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-sm font-bold text-white">
-                  ប្រព័ន្ធបញ្ជូនទិន្នន័យស្វ័យប្រវត្តិតាម Telegram Bot
-                </h4>
-                <span className="text-[10px] font-mono uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.2 rounded font-bold">
-                  AUTO-SYNC
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                រាល់ពេលចុះវត្តមាន និងចាក់សោរួច ទិន្នន័យនឹងត្រូវរៀបចំផ្ញើជូនអ្នកគ្រប់គ្រងសាលាដោយស្វ័យប្រវត្តិ
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-mono bg-slate-900 px-3.5 py-2 rounded-xl border border-slate-800 text-slate-300">
-            <Zap className="w-3.5 h-3.5 text-amber-400" />
-            <span>
-              Target:{' '}
-              {telegramConfig.chatId ? (
-                <span className="text-blue-400 font-bold">{telegramConfig.chatId}</span>
-              ) : (
-                <span className="text-slate-500">Not Configured</span>
-              )}
-            </span>
-          </div>
-        </div>
-      </div>
-
       {/* Timetable Modal */}
       {showTimetableModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto">

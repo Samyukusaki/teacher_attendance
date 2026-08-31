@@ -40,8 +40,8 @@ export default function App() {
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0" />
-              <p className="text-[11px] sm:text-xs">
-                © ២០២៦ <b>ប្រព័ន្ធគ្រប់គ្រងវត្តមានគ្រូបង្រៀន (Teacher Attendance System)</b>
+              <p className="text-[11px] sm:text-xs text-slate-700 font-medium">
+                © ២០២៦ <b>Copyright by S.N.P Technology</b>
               </p>
             </div>
             <p className="text-slate-400 text-[10px] sm:text-xs">
