@@ -710,17 +710,28 @@ export const TeacherAttendanceView: React.FC = () => {
                               ថ្នាក់រៀន
                             </label>
                             <select
+                              id={`period-class-select-${period.periodId}`}
                               value={period.gradeId}
                               onChange={(e) =>
                                 handleUpdatePeriod(period.periodId, 'gradeId', e.target.value)
                               }
                               className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-semibold text-slate-900 outline-hidden focus:bg-white focus:border-blue-500"
                             >
-                              {classes.map((c) => (
-                                <option key={c.id} value={c.id}>
-                                  {c.name} ({c.shift === 'morning' ? 'ព្រឹក' : 'រសៀល'})
-                                </option>
-                              ))}
+                              {classes.map((c) => {
+                                const shiftName =
+                                  c.shift === 'ព្រឹក' || c.shift === 'morning'
+                                    ? 'ព្រឹក'
+                                    : c.shift === 'រសៀល' || c.shift === 'afternoon'
+                                    ? 'រសៀល'
+                                    : c.shift === 'ពេញមួយថ្ងៃ'
+                                    ? 'ពេញមួយថ្ងៃ'
+                                    : c.shift || 'ព្រឹក';
+                                return (
+                                  <option key={c.id} value={c.id}>
+                                    {c.nameKh || (c as any).name} (វេន{shiftName})
+                                  </option>
+                                );
+                              })}
                             </select>
                           </div>
 
