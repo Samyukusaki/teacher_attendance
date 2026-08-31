@@ -178,6 +178,18 @@ export const AdminDashboard: React.FC = () => {
   };
 
   // Handlers for Teacher
+  const getNextTeacherCode = (teacherList: Teacher[]) => {
+    let maxNum = 0;
+    teacherList.forEach((t) => {
+      const match = (t.code || '').match(/TCH-(\d+)/i) || (t.code || '').match(/(\d+)/);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) maxNum = num;
+      }
+    });
+    return `TCH-${String(maxNum + 1).padStart(3, '0')}`;
+  };
+
   const handleOpenTeacherModal = (teacher?: Teacher) => {
     if (teacher) {
       setEditingTeacher(teacher);
@@ -196,7 +208,7 @@ export const AdminDashboard: React.FC = () => {
       });
     } else {
       setEditingTeacher(null);
-      const nextCode = `TCH-${String(teachers.length + 1).padStart(3, '0')}`;
+      const nextCode = getNextTeacherCode(teachers);
       setTeacherForm({
         nameKh: '',
         nameEn: '',
@@ -820,7 +832,17 @@ export const AdminDashboard: React.FC = () => {
 
           {/* Teachers Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {teachers
+            {[...teachers]
+              .sort((a, b) => {
+                const getNum = (code: string) => {
+                  const match = (code || '').match(/(\d+)/);
+                  return match ? parseInt(match[0], 10) : 0;
+                };
+                const numA = getNum(a.code || '');
+                const numB = getNum(b.code || '');
+                if (numA !== numB) return numA - numB;
+                return (a.code || '').localeCompare(b.code || '', undefined, { numeric: true, sensitivity: 'base' });
+              })
               .filter((t) => {
                 if (!teacherSearch.trim()) return true;
                 const q = teacherSearch.toLowerCase();
@@ -1561,16 +1583,23 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    កូដគ្រូ *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-slate-700">
+                      កូដគ្រូ *
+                    </label>
+                    <span className="text-[10px] text-blue-600 font-mono font-semibold">ស្វ័យប្រវត្តិ</span>
+                  </div>
                   <input
                     type="text"
                     required
                     value={teacherForm.code}
                     onChange={(e) => setTeacherForm({ ...teacherForm, code: e.target.value })}
+                    placeholder="TCH-001"
                     className="w-full text-xs font-mono font-bold bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-hidden focus:border-blue-500"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1 font-mono">
+                    លំដាប់ស្វីត (ឧ. TCH-001, TCH-002...)
+                  </p>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">

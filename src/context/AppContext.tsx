@@ -154,6 +154,21 @@ const LOCAL_STORAGE_KEYS = {
   TIMETABLES: 'teacher_att_timetables_v1',
 };
 
+export function sortTeachersByCode(list: Teacher[]): Teacher[] {
+  return [...list].sort((a, b) => {
+    const getNum = (code: string) => {
+      const match = (code || '').match(/(\d+)/);
+      return match ? parseInt(match[0], 10) : 0;
+    };
+    const numA = getNum(a.code || '');
+    const numB = getNum(b.code || '');
+    if (numA !== numB) {
+      return numA - numB;
+    }
+    return (a.code || '').localeCompare(b.code || '', undefined, { numeric: true, sensitivity: 'base' });
+  });
+}
+
 function safeGetJSON<T>(key: string, fallback: T): T {
   try {
     const item = localStorage.getItem(key);
@@ -203,7 +218,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Teachers
   const [teachers, setTeachers] = useState<Teacher[]>(() => {
-    return safeGetJSON<Teacher[]>(LOCAL_STORAGE_KEYS.TEACHERS, initialTeachers);
+    const loaded = safeGetJSON<Teacher[]>(LOCAL_STORAGE_KEYS.TEACHERS, initialTeachers);
+    return sortTeachersByCode(loaded);
   });
 
   // Classes
@@ -277,8 +293,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     const unsubTeachers = subscribeTeachers((list) => {
-      setTeachers(list);
-      localStorage.setItem(LOCAL_STORAGE_KEYS.TEACHERS, JSON.stringify(list));
+      const sorted = sortTeachersByCode(list);
+      setTeachers(sorted);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.TEACHERS, JSON.stringify(sorted));
       setIsCloudSynced(true);
     });
 
@@ -414,7 +431,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addTeacher = (tch: Omit<Teacher, 'id'>) => {
     const newId = `tch-${Date.now()}`;
     const newTeacher: Teacher = { ...tch, id: newId };
-    setTeachers((prev) => [...prev, newTeacher]);
+    setTeachers((prev) => sortTeachersByCode([...prev, newTeacher]));
     saveTeacherDoc(newTeacher).catch((e) => console.warn('Error saving teacher to Firestore:', e));
     showToast('success', 'ជោគជ័យ', `បានបន្ថែម ${newTeacher.nameKh} ដោយជោគជ័យ`);
   };
@@ -422,13 +439,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateTeacher = (id: string, tch: Partial<Teacher>) => {
     let updatedTch: Teacher | null = null;
     setTeachers((prev) =>
-      prev.map((t) => {
-        if (t.id === id) {
-          updatedTch = { ...t, ...tch };
-          return updatedTch;
-        }
-        return t;
-      })
+      sortTeachersByCode(
+        prev.map((t) => {
+          if (t.id === id) {
+            updatedTch = { ...t, ...tch };
+            return updatedTch;
+          }
+          return t;
+        })
+      )
     );
     if (updatedTch) {
       saveTeacherDoc(updatedTch).catch((e) => console.warn('Error updating teacher in Firestore:', e));
@@ -786,7 +805,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const data = JSON.parse(jsonString);
       if (data.schoolInfo) setSchoolInfo(data.schoolInfo);
-      if (data.teachers && Array.isArray(data.teachers)) setTeachers(data.teachers);
+      if (data.teachers && Array.isArray(data.teachers)) setTeachers(sortTeachersByCode(data.teachers));
       if (data.classes && Array.isArray(data.classes)) setClasses(data.classes);
       if (data.subjects && Array.isArray(data.subjects)) setSubjects(data.subjects);
       if (data.timetables && Array.isArray(data.timetables)) setTimetables(data.timetables);
