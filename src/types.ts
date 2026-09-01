@@ -115,6 +115,12 @@ export interface LeaveRequest {
   adminNote?: string;
 }
 
+export interface TeacherPermissionsConfig {
+  allowViewWeekly: boolean; // អនុញ្ញាតឱ្យគ្រូមើល វត្តមានប្រចាំសប្តាហ៍
+  allowViewMonthlySemester: boolean; // អនុញ្ញាតឱ្យគ្រូមើល ប្រចាំខែ & ឆមាស
+  allowViewReports?: boolean; // អនុញ្ញាតឱ្យគ្រូមើល របាយការណ៍ផ្លូវការ
+}
+
 export interface SchoolInfo {
   nameKh: string;
   nameEn: string;
@@ -129,6 +135,7 @@ export interface SchoolInfo {
   currentSemester: 'semester1' | 'semester2';
   logoUrl?: string;
   geoFence?: GeoFenceConfig;
+  teacherPermissions?: TeacherPermissionsConfig;
 }
 
 export interface TelegramConfig {

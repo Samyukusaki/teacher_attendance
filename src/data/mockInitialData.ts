@@ -21,6 +21,11 @@ export const initialSchoolInfo: SchoolInfo = {
     radiusMeters: 500, // 500 meters
     requireLocation: true,
   },
+  teacherPermissions: {
+    allowViewWeekly: false,
+    allowViewMonthlySemester: false,
+    allowViewReports: false,
+  },
 };
 
 export const initialSubjects: Subject[] = [

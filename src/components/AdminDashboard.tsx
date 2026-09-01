@@ -17,6 +17,7 @@ import {
   Sparkles,
   Search,
   Lock,
+  Unlock,
   Calendar,
   AlertTriangle,
   Download,
@@ -27,6 +28,12 @@ import {
   ExternalLink,
   Navigation,
   Cloud,
+  ShieldAlert,
+  CheckCircle2,
+  BarChart3,
+  FileSpreadsheet,
+  Check,
+  X,
 } from 'lucide-react';
 import { toKhmerNumber, STATUS_META } from '../utils/khmerDate';
 import { TeacherTimetableView } from './TeacherTimetableView';
@@ -35,6 +42,7 @@ export const AdminDashboard: React.FC = () => {
   const {
     schoolInfo,
     updateSchoolInfo,
+    updateTeacherPermissions,
     teachers,
     addTeacher,
     updateTeacher,
@@ -428,7 +436,7 @@ export const AdminDashboard: React.FC = () => {
             { id: 'subjects', label: 'គ្រប់គ្រងមុខវិជ្ជា', icon: BookOpen, badge: subjects.length },
             { id: 'records', label: 'កែសម្រួលវត្តមាន', icon: Lock, badge: attendanceRecords.length },
             { id: 'telegram', label: 'ការកំណត់ Telegram Bot', icon: Send },
-            { id: 'security', label: 'សុវត្ថិភាព / PIN', icon: KeyRound },
+            { id: 'security', label: 'សុវត្ថិភាព & សិទ្ធិចូលប្រើ', icon: KeyRound },
             { id: 'backup', label: 'បម្រុងទុក & ផ្ទេរទិន្នន័យ', icon: Database },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -1397,42 +1405,363 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 7: SECURITY & PIN */}
+      {/* TAB 7: SECURITY & TEACHER PERMISSIONS */}
       {adminTab === 'security' && (
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs max-w-md">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-4">
-            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase tracking-wider">
-              Security
-            </span>
-            <h3 className="font-bold text-base text-slate-900 font-khmer">
-              ផ្លាស់ប្តូរលេខកូដសម្ងាត់ Admin PIN
-            </h3>
-          </div>
+        <div className="space-y-6 max-w-4xl">
+          {/* Main Permission Controls */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center flex-shrink-0 shadow-xs">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase tracking-wider">
+                      Teacher Access Control
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      Cloud Synced
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-base text-slate-900 font-khmer mt-0.5">
+                    ការគ្រប់គ្រងសិទ្ធិចូលមើលរបស់លោកគ្រូ-អ្នកគ្រូ
+                  </h3>
+                </div>
+              </div>
 
-          <form onSubmit={handleSavePin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                លេខកូដ PIN ថ្មី (យ៉ាងហោចណាស់ ៤ ខ្ទង់)
-              </label>
-              <input
-                type="text"
-                maxLength={8}
-                value={newPin}
-                onChange={(e) => setNewPin(e.target.value)}
-                className="w-full text-center text-lg font-mono font-bold bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 focus:border-blue-500 outline-hidden tracking-widest"
-              />
-              <p className="text-[11px] text-slate-500 mt-1">
-                កូដបច្ចុប្បន្ន៖ <code>{adminPin}</code>
-              </p>
+              {/* Quick Batch Actions */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateTeacherPermissions({
+                      allowViewWeekly: false,
+                      allowViewMonthlySemester: false,
+                      allowViewReports: false,
+                    });
+                  }}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200"
+                  title="ចាក់សោទាំងអស់សម្រាប់តែ Admin"
+                >
+                  <Lock className="w-3.5 h-3.5 text-rose-500" />
+                  <span>ចាក់សោទាំងអស់ (Admin Only)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateTeacherPermissions({
+                      allowViewWeekly: true,
+                      allowViewMonthlySemester: true,
+                      allowViewReports: true,
+                    });
+                  }}
+                  className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-blue-200"
+                  title="បើកសិទ្ធិឱ្យលោកគ្រូ-អ្នកគ្រូចូលមើលទាំងអស់"
+                >
+                  <Unlock className="w-3.5 h-3.5 text-blue-600" />
+                  <span>បើកសិទ្ធិទាំងអស់</span>
+                </button>
+              </div>
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
-            >
-              រក្សាទុក PIN ថ្មី
-            </button>
-          </form>
+            <p className="text-xs text-slate-500 mt-3 leading-relaxed">
+              ជ្រើសរើសផ្នែកដែលលោកគ្រូ-អ្នកគ្រូអាចចូលមើលទិន្នន័យបាន។ ប្រសិនបើ <span className="font-bold text-rose-600">ចាក់សោ (Lock)</span> នោះលោកគ្រូ-អ្នកគ្រូត្រូវតែមានលេខកូដសម្ងាត់ PIN របស់ Admin ទើបអាចចូលមើលបាន។
+            </p>
+
+            {/* Permission Toggle Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+              {/* 1. Weekly Attendance */}
+              {(() => {
+                const isAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewWeekly);
+                return (
+                  <div
+                    className={`rounded-2xl p-4 border transition-all flex flex-col justify-between ${
+                      isAllowed
+                        ? 'bg-emerald-50/40 border-emerald-200 ring-1 ring-emerald-100'
+                        : 'bg-slate-50/80 border-slate-200'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                            isAllowed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          <Calendar className="w-5 h-5" />
+                        </div>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                            isAllowed
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              : 'bg-rose-100 text-rose-800 border border-rose-200'
+                          }`}
+                        >
+                          {isAllowed ? (
+                            <>
+                              <Unlock className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>បានបើកសិទ្ធិ</span>
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-2.5 h-2.5 text-rose-600" />
+                              <span>សម្រាប់ Admin</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+
+                      <h4 className="text-xs font-bold text-slate-900 font-khmer">
+                        វត្តមានប្រចាំសប្តាហ៍
+                      </h4>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-normal">
+                        តារាងវត្តមានតាមថ្ងៃ និងសប្តាហ៍របស់លោកគ្រូ-អ្នកគ្រូទាំងអស់
+                      </p>
+                    </div>
+
+                    <div className="pt-4 mt-3 border-t border-slate-200/60 flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-slate-600">
+                        {isAllowed ? 'លោកគ្រូ-អ្នកគ្រូមើលបាន' : 'ទាមទារ Admin PIN'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateTeacherPermissions({
+                            allowViewWeekly: !isAllowed,
+                          })
+                        }
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                          isAllowed ? 'bg-emerald-600' : 'bg-slate-300'
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                            isAllowed ? 'translate-x-5' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* 2. Monthly & Semester */}
+              {(() => {
+                const isAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewMonthlySemester);
+                return (
+                  <div
+                    className={`rounded-2xl p-4 border transition-all flex flex-col justify-between ${
+                      isAllowed
+                        ? 'bg-emerald-50/40 border-emerald-200 ring-1 ring-emerald-100'
+                        : 'bg-slate-50/80 border-slate-200'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                            isAllowed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          <BarChart3 className="w-5 h-5" />
+                        </div>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                            isAllowed
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              : 'bg-rose-100 text-rose-800 border border-rose-200'
+                          }`}
+                        >
+                          {isAllowed ? (
+                            <>
+                              <Unlock className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>បានបើកសិទ្ធិ</span>
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-2.5 h-2.5 text-rose-600" />
+                              <span>សម្រាប់ Admin</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+
+                      <h4 className="text-xs font-bold text-slate-900 font-khmer">
+                        ប្រចាំខែ & ឆមាស
+                      </h4>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-normal">
+                        ស្ថិតិបូកសរុបម៉ោងបង្រៀន ច្បាប់ អវត្តមាន និងអត្រាវត្តមាន
+                      </p>
+                    </div>
+
+                    <div className="pt-4 mt-3 border-t border-slate-200/60 flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-slate-600">
+                        {isAllowed ? 'លោកគ្រូ-អ្នកគ្រូមើលបាន' : 'ទាមទារ Admin PIN'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateTeacherPermissions({
+                            allowViewMonthlySemester: !isAllowed,
+                          })
+                        }
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                          isAllowed ? 'bg-emerald-600' : 'bg-slate-300'
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                            isAllowed ? 'translate-x-5' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* 3. Official Reports */}
+              {(() => {
+                const isAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewReports);
+                return (
+                  <div
+                    className={`rounded-2xl p-4 border transition-all flex flex-col justify-between ${
+                      isAllowed
+                        ? 'bg-emerald-50/40 border-emerald-200 ring-1 ring-emerald-100'
+                        : 'bg-slate-50/80 border-slate-200'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                            isAllowed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          <FileSpreadsheet className="w-5 h-5" />
+                        </div>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                            isAllowed
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              : 'bg-rose-100 text-rose-800 border border-rose-200'
+                          }`}
+                        >
+                          {isAllowed ? (
+                            <>
+                              <Unlock className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>បានបើកសិទ្ធិ</span>
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-2.5 h-2.5 text-rose-600" />
+                              <span>សម្រាប់ Admin</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+
+                      <h4 className="text-xs font-bold text-slate-900 font-khmer">
+                        របាយការណ៍ផ្លូវការ (Excel/Print)
+                      </h4>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-normal">
+                        តារាងរបាយការណ៍សាលា ទាញយកជា Excel និងបោះពុម្ព
+                      </p>
+                    </div>
+
+                    <div className="pt-4 mt-3 border-t border-slate-200/60 flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-slate-600">
+                        {isAllowed ? 'លោកគ្រូ-អ្នកគ្រូមើលបាន' : 'ទាមទារ Admin PIN'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateTeacherPermissions({
+                            allowViewReports: !isAllowed,
+                          })
+                        }
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                          isAllowed ? 'bg-emerald-600' : 'bg-slate-300'
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                            isAllowed ? 'translate-x-5' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Secondary Grid: PIN Management & Security Rules */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Change Admin PIN */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs">
+              <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-4">
+                <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase tracking-wider">
+                  Admin Security
+                </span>
+                <h3 className="font-bold text-base text-slate-900 font-khmer">
+                  ផ្លាស់ប្តូរលេខកូដសម្ងាត់ Admin PIN
+                </h3>
+              </div>
+
+              <form onSubmit={handleSavePin} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    លេខកូដ PIN ថ្មី (យ៉ាងហោចណាស់ ៤ ខ្ទង់)
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={8}
+                    value={newPin}
+                    onChange={(e) => setNewPin(e.target.value)}
+                    className="w-full text-center text-lg font-mono font-bold bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 focus:border-blue-500 outline-hidden tracking-widest"
+                  />
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    កូដបច្ចុប្បន្ន៖ <code className="font-bold text-slate-800">{adminPin}</code>
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>រក្សាទុក PIN ថ្មី</span>
+                </button>
+              </form>
+            </div>
+
+            {/* Security Explanation */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center mb-3">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-white font-khmer mb-1">
+                  គោលការណ៍សុវត្ថិភាពទិន្នន័យ (Data Privacy Policy)
+                </h4>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  រាល់ការផ្លាស់ប្តូរសិទ្ធិចូលមើល នឹងត្រូវបានធ្វើសមកាលកម្មដោយស្វ័យប្រវត្តិទៅកាន់ Cloud Firestore ក្នុងពេលជាក់ស្តែង (Real-time Sync)។ ពេល Admin បិទសិទ្ធិ លោកគ្រូ-អ្នកគ្រូទាំងអស់នឹងត្រូវចាក់សោភ្លាមៗ។
+                </p>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-slate-700/80 flex items-center justify-between text-[11px] text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Firestore Cloud Protected</span>
+                </span>
+                <span className="text-amber-400 font-mono">v2.5</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

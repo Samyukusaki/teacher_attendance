@@ -12,11 +12,19 @@ import { AdminProtectedGate } from './components/AdminProtectedGate';
 import { Toast } from './components/Toast';
 
 const MainContent: React.FC = () => {
-  const { activeTab, isAdminAuthenticated } = useApp();
+  const { activeTab, isAdminAuthenticated, schoolInfo } = useApp();
 
-  const isAdminTab = activeTab === 'weekly' || activeTab === 'monthly_semester' || activeTab === 'reports' || activeTab === 'admin_dashboard';
+  const isWeeklyAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewWeekly);
+  const isMonthlyAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewMonthlySemester);
+  const isReportsAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewReports);
 
-  if (isAdminTab && !isAdminAuthenticated) {
+  const isRestricted =
+    (activeTab === 'weekly' && !isWeeklyAllowed && !isAdminAuthenticated) ||
+    (activeTab === 'monthly_semester' && !isMonthlyAllowed && !isAdminAuthenticated) ||
+    (activeTab === 'reports' && !isReportsAllowed && !isAdminAuthenticated) ||
+    (activeTab === 'admin_dashboard' && !isAdminAuthenticated);
+
+  if (isRestricted) {
     return (
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full">
         <AdminProtectedGate />

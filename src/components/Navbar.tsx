@@ -84,11 +84,24 @@ export const Navbar: React.FC = () => {
 
   const handleSwitchToTeacher = () => {
     setCurrentRole('teacher');
-    // If current tab is admin-only, fallback to teacher_submit
-    if (activeTab === 'weekly' || activeTab === 'monthly_semester' || activeTab === 'reports' || activeTab === 'admin_dashboard') {
+    const isWeeklyAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewWeekly);
+    const isMonthlyAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewMonthlySemester);
+    const isReportsAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewReports);
+
+    const isCurrentRestricted =
+      activeTab === 'admin_dashboard' ||
+      (activeTab === 'weekly' && !isWeeklyAllowed) ||
+      (activeTab === 'monthly_semester' && !isMonthlyAllowed) ||
+      (activeTab === 'reports' && !isReportsAllowed);
+
+    if (isCurrentRestricted) {
       setActiveTab('teacher_submit');
     }
   };
+
+  const isWeeklyAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewWeekly);
+  const isMonthlyAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewMonthlySemester);
+  const isReportsAllowed = Boolean(schoolInfo.teacherPermissions?.allowViewReports);
 
   const navItems = [
     {
@@ -110,21 +123,21 @@ export const Navbar: React.FC = () => {
       label: 'វត្តមានប្រចាំសប្តាហ៍',
       icon: Calendar,
       desc: 'តារាងតាមថ្ងៃ',
-      adminOnly: true,
+      adminOnly: !isWeeklyAllowed,
     },
     {
       id: 'monthly_semester',
       label: 'ប្រចាំខែ & ឆមាស',
       icon: BarChart3,
       desc: 'ស្ថិតិបូកសរុប',
-      adminOnly: true,
+      adminOnly: !isMonthlyAllowed,
     },
     {
       id: 'reports',
       label: 'របាយការណ៍ផ្លូវការ',
       icon: FileSpreadsheet,
       desc: 'បោះពុម្ព & Excel',
-      adminOnly: true,
+      adminOnly: !isReportsAllowed,
     },
     {
       id: 'leave_requests',

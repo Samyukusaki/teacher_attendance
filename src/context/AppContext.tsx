@@ -10,6 +10,7 @@ import {
   TimetableSlot,
   DayOfWeek,
   Role,
+  TeacherPermissionsConfig,
 } from '../types';
 import {
   initialSchoolInfo,
@@ -73,6 +74,7 @@ interface AppContextType {
   // School Info
   schoolInfo: SchoolInfo;
   updateSchoolInfo: (info: Partial<SchoolInfo>) => void;
+  updateTeacherPermissions: (perms: Partial<TeacherPermissionsConfig>) => void;
   
   // Teachers
   teachers: Teacher[];
@@ -211,7 +213,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => {
     const loaded = safeGetJSON<SchoolInfo>(LOCAL_STORAGE_KEYS.SCHOOL, initialSchoolInfo);
     if (!loaded.geoFence || loaded.geoFence.latitude === 11.5367 || loaded.geoFence.latitude === 11.0482) {
-      return { ...loaded, geoFence: initialSchoolInfo.geoFence };
+      loaded.geoFence = initialSchoolInfo.geoFence;
+    }
+    if (!loaded.teacherPermissions) {
+      loaded.teacherPermissions = initialSchoolInfo.teacherPermissions;
     }
     return loaded;
   });
@@ -425,6 +430,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSchoolInfo(updated);
     setFirestoreSchoolInfo(updated).catch((e) => console.warn('Error saving school info to Firestore:', e));
     showToast('success', 'ជោគជ័យ', 'បានកែប្រែព័ត៌មានសាលារៀនរួចរាល់');
+  };
+
+  const updateTeacherPermissions = (perms: Partial<TeacherPermissionsConfig>) => {
+    const currentPerms = schoolInfo.teacherPermissions || {
+      allowViewWeekly: false,
+      allowViewMonthlySemester: false,
+      allowViewReports: false,
+    };
+    const updatedPerms: TeacherPermissionsConfig = {
+      ...currentPerms,
+      ...perms,
+    };
+    const updatedSchool = {
+      ...schoolInfo,
+      teacherPermissions: updatedPerms,
+    };
+    setSchoolInfo(updatedSchool);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.SCHOOL, JSON.stringify(updatedSchool));
+    setFirestoreSchoolInfo(updatedSchool).catch((e) =>
+      console.warn('Error saving teacher permissions to Firestore:', e)
+    );
+    showToast('success', 'បានធ្វើបច្ចុប្បន្នភាពសិទ្ធិ', 'ការកំណត់សិទ្ធិចូលមើលរបស់លោកគ្រូ-អ្នកគ្រូត្រូវបានរក្សាទុករួចរាល់');
   };
 
   // Teachers CRUD
@@ -848,6 +875,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isCloudSynced,
         schoolInfo,
         updateSchoolInfo,
+        updateTeacherPermissions,
         teachers,
         addTeacher,
         updateTeacher,
