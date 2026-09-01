@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   Cloud,
+  Lock,
 } from 'lucide-react';
 import { formatKhmerDate, toKhmerNumber, getTodayString } from '../utils/khmerDate';
 
@@ -36,6 +37,7 @@ export const Navbar: React.FC = () => {
   } = useApp();
 
   const [showPinModal, setShowPinModal] = useState(false);
+  const [targetTab, setTargetTab] = useState<string>('admin_dashboard');
   const [enteredPin, setEnteredPin] = useState('');
   const [pinError, setPinError] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -47,10 +49,22 @@ export const Navbar: React.FC = () => {
       setCurrentRole('admin');
       setActiveTab('admin_dashboard');
     } else {
+      setTargetTab('admin_dashboard');
       setShowPinModal(true);
       setEnteredPin('');
       setPinError(false);
     }
+  };
+
+  const handleTabClick = (tabId: string, isAdminOnly?: boolean) => {
+    if (isAdminOnly && !isAdminAuthenticated) {
+      setTargetTab(tabId);
+      setShowPinModal(true);
+      setEnteredPin('');
+      setPinError(false);
+      return;
+    }
+    setActiveTab(tabId as any);
   };
 
   const handlePinSubmit = (e: React.FormEvent) => {
@@ -58,10 +72,10 @@ export const Navbar: React.FC = () => {
     if (enteredPin === adminPin) {
       setIsAdminAuthenticated(true);
       setCurrentRole('admin');
-      setActiveTab('admin_dashboard');
+      setActiveTab(targetTab as any);
       setShowPinModal(false);
       setEnteredPin('');
-      showToast('success', 'ចូលប្រព័ន្ធជោគជ័យ', 'សូមស្វាគមន៍មកកាន់ផ្ទាំងគ្រប់គ្រងសាលារៀន (Admin Dashboard)');
+      showToast('success', 'ចូលប្រព័ន្ធជោគជ័យ', 'បានផ្ទៀងផ្ទាត់សិទ្ធិអ្នកគ្រប់គ្រង (Admin) រួចរាល់');
     } else {
       setPinError(true);
       showToast('error', 'លេខកូដមិនត្រឹមត្រូវ', 'សូមបញ្ចូលលេខកូដ PIN របស់អ្នកគ្រប់គ្រងឱ្យបានត្រឹមត្រូវ');
@@ -70,7 +84,10 @@ export const Navbar: React.FC = () => {
 
   const handleSwitchToTeacher = () => {
     setCurrentRole('teacher');
-    setActiveTab('teacher_submit');
+    // If current tab is admin-only, fallback to teacher_submit
+    if (activeTab === 'weekly' || activeTab === 'monthly_semester' || activeTab === 'reports' || activeTab === 'admin_dashboard') {
+      setActiveTab('teacher_submit');
+    }
   };
 
   const navItems = [
@@ -79,30 +96,35 @@ export const Navbar: React.FC = () => {
       label: 'ចុះវត្តមានបង្រៀន',
       icon: UserCheck,
       desc: 'បំពេញម៉ោងបង្រៀន',
+      adminOnly: false,
     },
     {
       id: 'timetables',
       label: 'កាលវិភាគបង្រៀន',
       icon: Calendar,
       desc: 'កាលវិភាគគ្រូនីមួយៗ',
+      adminOnly: false,
     },
     {
       id: 'weekly',
       label: 'វត្តមានប្រចាំសប្តាហ៍',
       icon: Calendar,
       desc: 'តារាងតាមថ្ងៃ',
+      adminOnly: true,
     },
     {
       id: 'monthly_semester',
       label: 'ប្រចាំខែ & ឆមាស',
       icon: BarChart3,
       desc: 'ស្ថិតិបូកសរុប',
+      adminOnly: true,
     },
     {
       id: 'reports',
       label: 'របាយការណ៍ផ្លូវការ',
       icon: FileSpreadsheet,
       desc: 'បោះពុម្ព & Excel',
+      adminOnly: true,
     },
     {
       id: 'leave_requests',
@@ -110,8 +132,16 @@ export const Navbar: React.FC = () => {
       icon: FileText,
       badge: pendingLeavesCount > 0 ? pendingLeavesCount : null,
       desc: 'សុំច្បាប់ឈប់សម្រាក',
+      adminOnly: false,
     },
   ];
+
+  const getTargetTabLabel = () => {
+    const item = navItems.find((n) => n.id === targetTab);
+    if (item) return item.label;
+    if (targetTab === 'admin_dashboard') return 'ផ្ទាំងគ្រប់គ្រងសាលារៀន (Admin Dashboard)';
+    return 'ទំព័រគ្រប់គ្រង';
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200/90 shadow-xs no-print">
@@ -277,26 +307,39 @@ export const Navbar: React.FC = () => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
+            const isRestricted = item.adminOnly && !isAdminAuthenticated;
+
             return (
               <button
                 key={item.id}
                 id={`nav-tab-${item.id}`}
-                onClick={() => setActiveTab(item.id as any)}
-                className={`group relative px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2.5 transition-all whitespace-nowrap cursor-pointer ${
+                onClick={() => handleTabClick(item.id, item.adminOnly)}
+                title={isRestricted ? `${item.label} (សម្រាប់តែ Admin)` : item.label}
+                className={`group relative px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-xs'
+                    : isRestricted
+                    ? 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60 border border-slate-200/50'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent'
                 }`}
               >
                 <div
                   className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                    isActive ? 'bg-white' : 'bg-slate-400 group-hover:bg-blue-500'
+                    isActive ? 'bg-white' : isRestricted ? 'bg-amber-400' : 'bg-slate-400 group-hover:bg-blue-500'
                   }`}
                 />
                 <Icon
                   className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-700'}`}
                 />
                 <span>{item.label}</span>
+
+                {isRestricted && (
+                  <span className="flex items-center gap-0.5 ml-0.5 text-[9px] font-bold text-amber-700 bg-amber-100/80 px-1.5 py-0.2 rounded border border-amber-300/60">
+                    <Lock className="w-2.5 h-2.5 text-amber-600" />
+                    <span>Admin</span>
+                  </span>
+                )}
+
                 {item.badge && (
                   <span className="ml-1 bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full shadow-xs">
                     {toKhmerNumber(item.badge)}
@@ -328,33 +371,47 @@ export const Navbar: React.FC = () => {
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              const isRestricted = item.adminOnly && !isAdminAuthenticated;
+
               return (
                 <button
                   key={item.id}
                   onClick={() => {
-                    setActiveTab(item.id as any);
+                    handleTabClick(item.id, item.adminOnly);
                     setMobileMenuOpen(false);
                   }}
                   className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors ${
                     isActive
                       ? 'bg-blue-600 text-white shadow-xs'
+                      : isRestricted
+                      ? 'text-slate-600 hover:bg-slate-100 bg-slate-50/80 border border-slate-200/50'
                       : 'text-slate-700 hover:bg-slate-100 bg-slate-50'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <div
                       className={`w-1.5 h-1.5 rounded-full ${
-                        isActive ? 'bg-white' : 'bg-slate-400'
+                        isActive ? 'bg-white' : isRestricted ? 'bg-amber-400' : 'bg-slate-400'
                       }`}
                     />
                     <Icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </div>
-                  {item.badge && (
-                    <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      {toKhmerNumber(item.badge)}
-                    </span>
-                  )}
+
+                  <div className="flex items-center gap-1.5">
+                    {isRestricted && (
+                      <span className="flex items-center gap-0.5 text-[9px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">
+                        <Lock className="w-2.5 h-2.5 text-amber-600" />
+                        <span>Admin</span>
+                      </span>
+                    )}
+
+                    {item.badge && (
+                      <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {toKhmerNumber(item.badge)}
+                      </span>
+                    )}
+                  </div>
                 </button>
               );
             })}
@@ -390,7 +447,7 @@ export const Navbar: React.FC = () => {
                 ផ្ទៀងផ្ទាត់សិទ្ធិអ្នកគ្រប់គ្រង
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                សូមបញ្ចូលលេខកូដសម្ងាត់ PIN របស់អ្នកគ្រប់គ្រង (Admin) ដើម្បីចូលគ្រប់គ្រងទិន្នន័យ
+                សូមបញ្ចូលលេខកូដសម្ងាត់ PIN របស់អ្នកគ្រប់គ្រង (Admin) ដើម្បីចូលមើល <span className="font-bold text-blue-600">«{getTargetTabLabel()}»</span>
               </p>
             </div>
 

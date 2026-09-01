@@ -8,10 +8,21 @@ import { ReportsView } from './components/ReportsView';
 import { LeaveRequestsView } from './components/LeaveRequestsView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { TeacherTimetableView } from './components/TeacherTimetableView';
+import { AdminProtectedGate } from './components/AdminProtectedGate';
 import { Toast } from './components/Toast';
 
 const MainContent: React.FC = () => {
-  const { activeTab } = useApp();
+  const { activeTab, isAdminAuthenticated } = useApp();
+
+  const isAdminTab = activeTab === 'weekly' || activeTab === 'monthly_semester' || activeTab === 'reports' || activeTab === 'admin_dashboard';
+
+  if (isAdminTab && !isAdminAuthenticated) {
+    return (
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full">
+        <AdminProtectedGate />
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full">
